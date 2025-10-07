@@ -1,0 +1,212 @@
+body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.ControleConteudoPrincipal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 60px;
+}
+
+.botao {
+    margin-top: 20px;
+    margin-left:20px;
+}
+
+.fundo {
+    width: 70vw;
+    height: 100vh;
+}
+
+.ControleSeta {
+    display: flex;
+}
+
+.msgErro {
+    padding: 12px 20px;
+    margin-top: 20px;
+    background-color: var(--cor-vermelho-pagamentos);
+    border-radius: 6px;
+    color: var(--cor-branco);
+}
+
+.msgSucesso {
+    padding: 12px 20px;
+    margin-top: 20px;
+    background-color: #65EE72;
+    border-radius: 6px;
+    color: var(--cor-branco);
+}
+
+#ControleEsqueciSenhaPopup {
+    align-items: center;
+}
+
+.ControleBotoesGerais {
+    display: flex;
+    justify-content: center;
+}
+
+.bloco {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    margin: 30px;
+    justify-content: center;
+}
+
+.ControleImagemCapa {
+    transform: scaleX(-1);
+}
+
+.texto {
+    background-color: #003B73;
+    padding: 30px;
+    width: 25vw;
+    color: aliceblue;
+    position: absolute;
+    top: 60vh;
+    left: 35vw;
+    transition: top 1.5s ease-out;
+    border-radius: 10px;
+    opacity: 0;
+}
+
+#form1 {
+    display: flex;
+    width: 100%;
+}
+
+.texto.animacao {
+    opacity: 1;
+    top: 50vh;
+}
+
+.ControleLogo {
+    display: flex;
+}
+
+a {
+    color: #000;
+}
+
+.ControleInformacao a {
+    color: #3554A2;
+}
+
+.ControleInformacao {
+    display: flex;
+    gap: 10px;
+}
+
+.ControleLinks {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    gap: 30px;
+}
+
+.ControleBotaoEntrar {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.ControleLogo img {
+    height: 60px;
+}
+
+.msgAvisoLogin {
+    padding: 12px 20px;
+    margin-top: 20px;
+    background-color: var(--cor-vermelho-pagamentos);
+    border-radius: 6px;
+    color: var(--cor-branco);
+}
+
+.msgAvisoLogin::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background-image: url(../img/icones/alerta.png);
+    background-size: cover;
+    background-position: left;
+    margin-right: 15px;
+    transform: translateY(15%);
+    filter: invert(1) brightness(2);
+}
+
+@media (min-width: 765px) and (max-width: 1230px) {
+    body {
+        flex-direction: column;
+        justify-content: flex-start;
+        overflow-y: auto;
+    }
+
+    .fundo {
+        width: 100%;
+        height: 70vh;
+        object-fit: cover;
+    }
+
+    #form1 {
+        display: block;
+    }
+
+    .ControleImagemCapa {
+        position: relative;
+        width: 100%;
+    }
+
+    .texto {
+        width: 50%;
+        top: 25vh;
+    }
+
+    .ControleConteudoPrincipal {
+        padding: 20px;
+        margin-top: 20px;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+    }
+
+    .bloco {
+        margin: 20px;
+        width: 100%;
+        max-width: 600px;
+    }
+
+    .texto {
+        left: 45vw;
+    }
+
+        .texto.animacao {
+            top: 40vh;
+        }
+}
+
+@media (max-width: 766px) {
+    .fundo,
+    .texto {
+        display: none;
+    }
+
+    .ControleConteudoPrincipal {
+        padding: 20px;
+    }
+
+    .bloco {
+        margin: 20px;
+    }
+}

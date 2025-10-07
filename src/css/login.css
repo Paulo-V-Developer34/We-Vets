@@ -1,0 +1,376 @@
+:root {
+  --azul-escuro: #073047;
+  --verde-acento: #1FA46A;
+  --verde-escuro: #157a4f;
+  --branco: #ffffff;
+  --bg: #f5f8fb;
+  --muted: #6b7788;
+  --radius: 14px;
+  --sombra-lg: 0 20px 50px rgba(3,11,34,0.12);
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  min-height: 100%;
+  background: var(--bg);
+  color: #122;
+  font-family: inherit;
+}
+
+a {
+  color: var(--azul-escuro);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.ControleTela {
+  height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 440px;
+  align-items: stretch;
+  overflow: hidden;
+}
+
+.ControleEsquerda {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.ControleImagem {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* background-image: url('../Imagens/ferramenta3.png'); */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 0;
+  filter: brightness(0.85) saturate(1.1);
+  transition: filter 0.5s ease;
+}
+
+.ControleEsquerda::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(0,0,0,0.45), rgba(0,0,0,0.15));
+  z-index: 1;
+}
+
+.ControleFrase {
+  position: absolute;
+  top: 50%;
+  left: 8%;
+  transform: translateY(-50%);
+  z-index: 2;
+}
+
+.ControleBoasVindas {
+  font-size: 44px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+  font-family: 'Montserrat', sans-serif;
+  text-shadow: 2px 4px 12px rgba(0,0,0,0.7);
+  white-space: nowrap;
+  overflow: hidden;
+  position: relative;
+  animation: slideUp 0.8s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes slideUp {
+  0% {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.ControleBoasVindas.digitando::after {
+  content: "";
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  background-color: rgba(255,255,255,0.85);
+  margin-left: 2px;
+  animation: piscar 1s steps(1) infinite;
+  vertical-align: bottom;
+}
+
+@keyframes piscar {
+  0%, 50%, 100% {
+    opacity: 1;
+  }
+  25%, 75% {
+    opacity: 0;
+  }
+}
+
+.decor-patas {
+  position: absolute;
+  font-size: 140px;
+  color: rgb(31 164 106 / 35%);
+  z-index: 5;
+}
+
+.ControlePataEsq {
+  bottom: 20px;
+  left: 20px;
+}
+
+.ControlePataDir {
+  top: 20px;
+  right: 20px;
+}
+
+.ControleMensagemEsq {
+  font-size: 18px;
+  color: rgba(255,255,255,0.95);
+  max-width: 360px;
+  line-height: 1.5;
+  font-family: 'Inter', sans-serif;
+}
+
+.ControleDireita {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 20px 24px;
+  background: linear-gradient(180deg,#fff,#fbfdff);
+  position: relative;
+  z-index: 9;
+}
+
+.ControleLogin {
+  width: 100%;
+  max-width: 420px;
+  background: var(--branco);
+  border-radius: 14px;
+  padding: 26px;
+  box-shadow: 0 8px 22px rgba(3,11,34,0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 10;
+}
+
+.ControleTopo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ControleLogo img {
+  height: 56px;
+  display: block;
+}
+
+.ControleNome {
+  font-weight: 800;
+  color: var(--azul-escuro);
+  font-family: 'Montserrat', sans-serif;
+}
+
+.ControleTitulo {
+  font-size: 20px;
+  color: var(--azul-escuro);
+  margin-top: 4px;
+}
+
+.ControleSub {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.ControleForm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ControleGrupo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ControleRotulo {
+  font-size: 13px;
+  color: #334;
+}
+
+.ControleEntrada {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #e6eef8;
+  background: #fbfdff;
+  font-size: 15px;
+}
+
+.ControleEntrada:focus {
+  outline: none;
+  box-shadow: 0 8px 28px rgba(31,164,106,0.09);
+  border-color: var(--verde-acento);
+}
+
+.ControleAcao {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ControleAcao .ControleEntrada {
+  flex: 1;
+}
+
+.ControleIcone {
+  background: transparent;
+  border: 0;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--muted);
+}
+
+.ControleLinha {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.ControleLembrar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ControleLembrar input {
+  width: 16px;
+  height: 16px;
+}
+
+.ControleBotoes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.ControleBotao {
+  padding: 12px;
+  border-radius: 10px;
+  border: 0;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.ControlePrimario {
+  background: linear-gradient(180deg,var(--verde-acento),var(--verde-escuro));
+  color: var(--branco);
+  box-shadow: 0 14px 36px rgba(31,164,106,0.16);
+}
+
+.ControleSecundario {
+  background: transparent;
+  border: 1px solid rgba(31,164,106,0.14);
+  color: var(--verde-escuro);
+  text-align: center;
+}
+
+.ControleMensagem {
+  min-height: 44px;
+  margin-top: 6px;
+}
+
+.ControleErro {
+  padding: 10px;
+  border-radius: 10px;
+  background: #fff1f1;
+  color: #8a1b11;
+}
+
+.ControleSucesso {
+  padding: 10px;
+  border-radius: 10px;
+  background: #eafaf0;
+  color: #0b6a3f;
+}
+
+.ControleRodape {
+  font-size: 12px;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 6px;
+}
+
+@media (max-width:1200px) {
+  .ControleFrase {
+    left: 5%;
+  }
+  .ControleBoasVindas {
+    font-size: 36px;
+  }
+  .ControleMensagemEsq {
+    font-size: 16px;
+    max-width: 300px;
+  }
+}
+
+@media (max-width:860px) {
+  .ControleTela {
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: 100vh;
+  }
+  .ControleEsquerda {
+    display: none;
+  }
+  .ControleDireita {
+    justify-content: center;
+    padding: 20px;
+  }
+  .ControleLogin {
+    margin: auto 0;
+  }
+  html, body {
+    height: auto;
+    overflow: auto;
+  }
+}
+
+@media (max-width:480px) {
+  .ControleLogin {
+    padding: 20px;
+  }
+  .ControleBotao {
+    padding: 10px;
+    font-size: 14px;
+  }
+}
