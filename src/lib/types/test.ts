@@ -1,0 +1,3 @@
+type myType = {
+    tipo: string
+}
