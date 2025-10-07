@@ -1,5 +1,7 @@
 'use client'
 
+import { signIn } from "next-auth/react"
+
 
 
 export default function LoginForm(){
@@ -37,7 +39,7 @@ export default function LoginForm(){
                         <h3 id="ControleTitulo" className="ControleTitulo">Acesse sua conta</h3>
                         <p className="ControleSub">Gerencie agendamentos, prontuários e estoque da clínica.</p>
 
-                        <form id="ControleForm" className="ControleForm" autoComplete="on">
+                        <form id="ControleForm" className="ControleForm" autoComplete="on" action={()=>(signIn())}>
                         <div className="ControleGrupo">
                             <label htmlFor="email" className="ControleRotulo">E-mail</label>
                             <input id="email" name="email" type="email" className="ControleEntrada" placeholder="seu@clinica.com" autoComplete="email" required/>
