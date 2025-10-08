@@ -1,3 +1,3 @@
 type myType = {
-    tipo: string
-}
+	tipo: string;
+};
