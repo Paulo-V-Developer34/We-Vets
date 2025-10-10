@@ -7,10 +7,11 @@
 		"build": "next build",
 		"start": "next start",
 		"lint": "eslint",
+		"db:setup": "pnpm db:reset && pnpm db:seed && pnpm db:studio",
 		"db:reset": "pnpm dlx prisma migrate reset && pnpm dlx prisma migrate dev",
 		"db:migrate": "pnpm dlx prisma migrate dev",
 		"db:seed": "tsx prisma/seed.ts",
-		"db:dev": "pnpm dlx prisma dev",
+		"db:dev": "pnpm dlx prisma dev --name we-vets-db-dev",
 		"db:studio": "pnpm dlx prisma studio"
 	},
 	"dependencies": {
