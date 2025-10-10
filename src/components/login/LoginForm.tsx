@@ -1,10 +1,24 @@
 "use client";
 
-import { signIn } from "next-auth/react";
+import { login } from "@/lib/actions";
+import { FormMessage } from "@/lib/types/message";
+import { useActionState } from "react";
+import { toast } from "sonner";
 
 export default function LoginForm() {
+	const initialState: FormMessage = {message: " "}
+	const [state, formAction, isPending] = useActionState(login, initialState)
 	return (
 		<>
+			{
+				state.errors && toast("Erro", {
+					description: state.errors.err[0],
+					action: {
+						label: "Ok",
+						onClick: () => console.log("Ok"),
+					},
+				})
+			}
 			<div className="ControleTela">
 				<div className="ControleEsquerda">
 					{/* <!-- Imagem de fundo profissional --> */}
@@ -52,7 +66,7 @@ export default function LoginForm() {
 							id="ControleForm"
 							className="ControleForm"
 							autoComplete="on"
-							action={() => signIn()}
+							action={formAction}
 						>
 							<div className="ControleGrupo">
 								<label htmlFor="email" className="ControleRotulo">
@@ -71,7 +85,7 @@ export default function LoginForm() {
 
 							<div className="ControleGrupo">
 								<label htmlFor="password" className="ControleRotulo">
-									Senha{" "}
+									Senha
 								</label>
 								<div className="ControleAcao">
 									<input
