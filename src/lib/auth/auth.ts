@@ -38,6 +38,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 					throw new Error("Usuário inválido");
 				}
 
+				if (!user.password) {
+					throw new Error("Senha do usuário não identificada");
+				}
+
 				if (!bcrypt.compareSync(verifiedCredentials.password, user.password)) {
 					throw new Error("Senha inválida");
 				}
