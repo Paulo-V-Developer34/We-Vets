@@ -3,7 +3,7 @@ import { encode as defaultEncode } from "next-auth/jwt";
 
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import GitHub from "next-auth/providers/github";
+import GitHubProvider from "next-auth/providers/github"
 import prisma from "../prisma";
 import bcrypt from "bcryptjs";
 import { UsuarioSemSenha } from "@/lib/types/userType";
@@ -11,21 +11,21 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import { schema } from "@/lib/types/schema/schema";
 
 //adicionando o adaptador para o Auth.js
-const adapter = PrismaAdapter(prisma);
+const adapter = PrismaAdapter(prisma)
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
 	adapter,
 	providers: [
-		GitHub,
+		GitHubProvider({
+			clientId: process.env.GITHUB_ID as string,
+			clientSecret: process.env.GITHUB_SECRET as string
+		}),
 		Credentials({
 			credentials: {
 				email: { label: "Email", type: "email" },
 				password: { label: "Password", type: "password" },
 			},
 			authorize: async (credentials) => {
-				// if (!credentials?.email === undefined || !credentials?.password === undefined) {
-				//   throw new Error("Erro na biblioteca de autenticação")
-				// }
 				const verifiedCredentials = schema.parse(credentials);
 
 				const user = await prisma.user.findUnique({
@@ -47,9 +47,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 					...user,
 				};
 
-				return appUser;
+				return user;
 			},
-		}),
+		})
 	],
 	callbacks: {
 		async jwt({ token, account }) {
