@@ -6,7 +6,7 @@ import Credentials from "next-auth/providers/credentials";
 import GitHubProvider from "next-auth/providers/github"
 import prisma from "../prisma";
 import bcrypt from "bcryptjs";
-import { UsuarioSemSenha } from "@/lib/types/userType";
+import { UsuarioSemSenha } from "@/lib/types/user";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { schema } from "@/lib/types/schema/schema";
 
