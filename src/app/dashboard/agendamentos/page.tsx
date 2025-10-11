@@ -1,5 +1,5 @@
-import { auth } from "@/lib/auth/auth";
 import { redirect } from "next/navigation";
+import { auth } from "@/lib/auth/auth";
 
 export default async function AgendamentosPage() {
 	const session = await auth();
