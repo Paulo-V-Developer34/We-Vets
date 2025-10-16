@@ -45,3 +45,6 @@ next-env.d.ts
 
 #prisma orm
 /generated
+
+#npm files
+package-lock.json
