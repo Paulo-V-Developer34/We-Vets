@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
 	experimental: {
 		serverActions: {
 			allowedOrigins: [
-				"localhost:3000",
+				"localhost:*",
 				"*.app.github.dev", // Permite todos os domínios do GitHub Codespaces
 			],
 		},
