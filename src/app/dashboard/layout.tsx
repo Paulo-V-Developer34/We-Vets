@@ -1,38 +1,44 @@
-import { auth, signOut } from "@/lib/auth/auth";
-import { LogOutIcon } from "lucide-react";
-import Link from "next/link";
+import { AppSidebar } from "@/components/app-sidebar"
+import { Header } from "@/components/dashboard/layout/Nav"
+import { SiteHeader } from "@/components/site-header"
+import {
+	Breadcrumb,
+	BreadcrumbItem,
+	BreadcrumbLink,
+	BreadcrumbList,
+	BreadcrumbPage,
+	BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
+import { Separator } from "@/components/ui/separator"
+import {
+	SidebarInset,
+	SidebarProvider,
+	SidebarTrigger,
+} from "@/components/ui/sidebar"
+import { auth } from "@/lib/auth/auth"
+import { redirect } from "next/navigation"
 
 export default async function RootLayout({
 	children,
 }: Readonly<{
-	children: React.ReactNode;
+	children: React.ReactNode
 }>) {
-	const user = await auth();
-	const name = user?.user.name;
-	const email = user?.user.email;
+	const session = await auth();
+	if (!session) {
+		redirect("/signin");
+	}
 
 	return (
 		<>
-			<nav className="flex justify-between bg-emerald-500 w-full h-20">
-				<h1>We Vets</h1>
-				<Link href={"/dashboard/agendamentos"}>Agendamentos</Link>
-				<Link href={"/dashboard/analises"}>Analise</Link>
-				<div>
-					<form
-						action={async () => {
-							"use server";
-							await signOut();
-						}}
-					>
-						<button type="submit">
-							<LogOutIcon />
-						</button>
-					</form>
-					<h2>Nome: {name}</h2>
-					<h2>Email: {email}</h2>
-				</div>
-			</nav>
-			{children}
+			<div className="[--header-height:calc(--spacing(14))]">
+				<SidebarProvider className="flex flex-col">
+					<SiteHeader />
+					<div className="flex flex-1">
+						<AppSidebar {session}/>
+						<SidebarInset>{children}</SidebarInset>
+					</div>
+				</SidebarProvider>
+			</div>
 		</>
-	);
+	)
 }

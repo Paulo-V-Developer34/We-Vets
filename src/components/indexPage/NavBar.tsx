@@ -1,3 +1,5 @@
+import Link from "next/link"
+
 export default function NavBar() {
 	return (
 		<div className="controle-cabecalho-interno">
@@ -18,9 +20,13 @@ export default function NavBar() {
 				<a href="#faq">FAQ</a>
 			</nav>
 			<div style={{ display: "flex", gap: "10px" }}>
-				<button className="controle-botao controle-botao--claro" id="btnEntrar">
+				<Link
+					href={"/signin"}
+					className="controle-botao controle-botao--claro"
+					id="btnEntrar"
+				>
 					Entrar
-				</button>
+				</Link>
 				<button
 					className="controle-botao controle-botao--escuro"
 					id="btnCadastrar"
@@ -29,5 +35,5 @@ export default function NavBar() {
 				</button>
 			</div>
 		</div>
-	);
+	)
 }
