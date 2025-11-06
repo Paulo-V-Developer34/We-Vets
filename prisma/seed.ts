@@ -1,7 +1,7 @@
-import { PrismaClient, Prisma } from "../generated/prisma";
-import { genSaltSync, hashSync } from "bcryptjs";
+import { genSaltSync, hashSync } from "bcryptjs"
+import { Prisma, PrismaClient } from "../generated/prisma"
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient()
 
 const users = (password: string): Prisma.UserCreateInput[] => [
 	{
@@ -14,27 +14,27 @@ const users = (password: string): Prisma.UserCreateInput[] => [
 		email: "paulo@prisma.io",
 		password: password,
 	},
-];
+]
 
 export async function main() {
-	console.log("Iniciando a seed");
-	let qtddDados = 0;
-	const salt = genSaltSync(10);
-	const hash = hashSync("wrl123@@", salt);
-	const userData = users(hash);
+	console.log("Iniciando a seed")
+	let qtddDados = 0
+	const salt = genSaltSync(10)
+	const hash = hashSync("wrl123@@", salt)
+	const userData = users(hash)
 
 	for (const u of userData) {
-		const user = await prisma.user.create({ data: u });
+		const user = await prisma.user.create({ data: u })
 
 		if (!user) {
-			console.error(`Falha ao tentar criar usuario ${u.name}`);
+			console.error(`Falha ao tentar criar usuário ${u.name}`)
 		} else {
-			console.log(`Usuario ${user.name} criado com sucesso`);
-			qtddDados++;
+			console.log(`Usuário ${user.name} criado com sucesso`)
+			qtddDados++
 		}
 	}
 
-	console.log(`Seed concluída com ${qtddDados} dados`);
+	console.log(`Seed concluída com ${qtddDados} dados`)
 }
 
-main();
+main()

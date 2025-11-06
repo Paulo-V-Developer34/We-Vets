@@ -23,9 +23,9 @@ export default async function RootLayout({
 }: Readonly<{
 	children: React.ReactNode
 }>) {
-	const session = await auth();
+	const session = await auth()
 	if (!session) {
-		redirect("/signin");
+		redirect("/signin")
 	}
 
 	return (
@@ -34,7 +34,7 @@ export default async function RootLayout({
 				<SidebarProvider className="flex flex-col">
 					<SiteHeader />
 					<div className="flex flex-1">
-						<AppSidebar {session}/>
+						<AppSidebar session={session} />
 						<SidebarInset>{children}</SidebarInset>
 					</div>
 				</SidebarProvider>
