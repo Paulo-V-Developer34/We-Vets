@@ -80,7 +80,7 @@ export async function main() {
 
 	// Configuração de senha
 	const salt = genSaltSync(10)
-	const hash = hashSync("123456", salt) // Senha padrão para testes
+	const hash = hashSync("wrl12345@@", salt) // Senha padrão para testes
 
 	// --- CRIAÇÃO DE USUÁRIOS VETERINÁRIOS ---
 	const vetsData = vetUsers(hash)
