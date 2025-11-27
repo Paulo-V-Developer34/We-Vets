@@ -10,18 +10,25 @@ datasource db {
 
 model User {
   id            String          @id @default(cuid())
-  name          String
-  password      String?
+  name          String?
+  password      String?         // Opcional pois pode vir de Login Social (Google, etc)
   email         String          @unique
   emailVerified DateTime?
   image         String?
+  role          Role            @default(USER) // Campo novo para controle de acesso
+
   accounts      Account[]
   sessions      Session[]
-  // Optional for WebAuthn support
   Authenticator Authenticator[]
+
+  // Integração com suas tabelas de Domínio
+  dono          Dono?           // Relacionamento 1:1 Opcional
+  veterinario   Veterinario?    // Relacionamento 1:1 Opcional
  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@map("users")
 }
  
 model Account {
@@ -77,4 +84,143 @@ model Authenticator {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
  
   @@id([userId, credentialID])
+}
+
+// --- AUTH.JS (NEXT-AUTH) MODELS ---
+
+enum Role {
+  USER        // Usuário comum (padrão)
+  ADMIN       // Admin do sistema
+  VETERINARIO // Tem acesso a área de vet
+  DONO        // Tem acesso a área de dono
+}
+
+
+
+// --- SUAS TABELAS DE DOMÍNIO (Integradas) ---
+
+model Dono {
+  id           String        @id @default(uuid())
+  // Nome e Email foram removidos pois já existem em User
+  telefone     String?
+  endereco     String?       // Exemplo de dado que só Dono tem
+
+  // Chave estrangeira ligando ao User (Auth)
+  userId       String        @unique
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Relacionamentos do diagrama original
+  pertence     Pertence[]
+  agendamentos Agendamento[]
+  
+  criadoEm     DateTime      @default(now())
+
+  @@map("donos")
+}
+
+model Veterinario {
+  id            String     @id @default(uuid())
+  // Nome removido (usa User.name), mas pode manter se quiser um "Nome Profissional" diferente
+  crmv          String     @unique
+  especialidade String
+  
+  // Chave estrangeira ligando ao User (Auth)
+  userId        String     @unique
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  consultas     Consulta[]
+  produtos      Produto[]
+
+  @@map("veterinarios")
+}
+
+// --- DEMAIS TABELAS (Permanecem iguais) ---
+
+model Pertence {
+  id       String   @id @default(uuid())
+  donoId   String
+  petId    String
+  ativo    Boolean  @default(true)
+  
+  dono     Dono     @relation(fields: [donoId], references: [id])
+  pet      Pet      @relation(fields: [petId], references: [id])
+
+  criadoEm DateTime @default(now())
+
+  @@map("pertence")
+}
+
+model Pet {
+  id           String        @id @default(uuid())
+  nome         String
+  especie      String
+  raca         String?
+  nascimento   DateTime?
+  
+  pertence     Pertence[]
+  agendamentos Agendamento[]
+
+  @@map("pets")
+}
+
+model Agendamento {
+  id        String    @id @default(uuid())
+  datahora  DateTime
+  status    String    @default("PENDENTE")
+  
+  donoId    String
+  petId     String
+  
+  dono      Dono      @relation(fields: [donoId], references: [id])
+  pet       Pet       @relation(fields: [petId], references: [id])
+  
+  consulta  Consulta?
+  fatos     FatosFinanceiros[]
+
+  @@map("agendamentos")
+}
+
+model Consulta {
+  id            String      @id @default(uuid())
+  diagnostico   String      @db.Text // Prisma 6 suporta @db.Text se o banco suportar
+  observacoes   String?     @db.Text
+  
+  agendamentoId String      @unique
+  veterinarioId String
+  
+  agendamento   Agendamento @relation(fields: [agendamentoId], references: [id])
+  veterinario   Veterinario @relation(fields: [veterinarioId], references: [id])
+
+  @@map("consultas")
+}
+
+model Produto {
+  id            String      @id @default(uuid())
+  nome          String
+  precoCusto    Decimal
+  precoVenda    Decimal
+  estoque       Int
+  
+  veterinarioId String?
+  veterinario   Veterinario? @relation(fields: [veterinarioId], references: [id])
+  
+  fatos         FatosFinanceiros[]
+
+  @@map("produtos")
+}
+
+model FatosFinanceiros {
+  id            String       @id @default(uuid())
+  tipo          String
+  valor         Decimal
+  descricao     String
+  data          DateTime     @default(now())
+
+  agendamentoId String?
+  produtoId     String?
+
+  agendamento   Agendamento? @relation(fields: [agendamentoId], references: [id])
+  produto       Produto?     @relation(fields: [produtoId], references: [id])
+
+  @@map("fatos_financeiros")
 }
