@@ -1,43 +1,42 @@
 "use server"
 
-import { FormMessage } from "../types/message";
+import { FormMessage } from "../types/message"
 
 export async function petCreat(
-  prevState: FormMessage,
-  formData: FormData,
+	prevState: FormMessage,
+	formData: FormData,
 ): Promise<FormMessage> {
-    //code
-    return {
-        message: "hello world"
-    }
+	return {
+		message: "hello world",
+	}
 }
 
 export async function petRead(
-  prevState: FormMessage,
-  formData: FormData,
+	prevState: FormMessage,
+	formData: FormData,
 ): Promise<FormMessage> {
-    //code
-    return {
-        message: "hello world"
-    }
+	//code
+	return {
+		message: "hello world",
+	}
 }
 
 export async function petUpdate(
-  prevState: FormMessage,
-  formData: FormData,
+	prevState: FormMessage,
+	formData: FormData,
 ): Promise<FormMessage> {
-    //code
-    return {
-        message: "hello world"
-    }
+	//code
+	return {
+		message: "hello world",
+	}
 }
 
 export async function petDelete(
-  prevState: FormMessage,
-  formData: FormData,
+	prevState: FormMessage,
+	formData: FormData,
 ): Promise<FormMessage> {
-    //code
-    return {
-        message: "hello world"
-    }
+	//code
+	return {
+		message: "hello world",
+	}
 }
