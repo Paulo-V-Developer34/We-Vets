@@ -95,6 +95,11 @@ enum Role {
   DONO        // Tem acesso a área de dono
 }
 
+enum Status {
+  PENDENTE
+  CONCLUIDO
+  CANCELADO
+}
 
 
 // --- SUAS TABELAS DE DOMÍNIO (Integradas) ---
@@ -163,10 +168,13 @@ model Pet {
   @@map("pets")
 }
 
+//Atualizar
 model Agendamento {
   id        String    @id @default(uuid())
   datahora  DateTime
-  status    String    @default("PENDENTE")
+  status    Status    @default(PENDENTE)
+
+  descricao String    @db.Text
   
   donoId    String
   petId     String
@@ -197,8 +205,7 @@ model Consulta {
 model Produto {
   id            String      @id @default(uuid())
   nome          String
-  precoCusto    Decimal
-  precoVenda    Decimal
+  preco         Decimal
   estoque       Int
   
   veterinarioId String?

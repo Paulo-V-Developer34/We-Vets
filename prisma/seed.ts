@@ -1,5 +1,5 @@
 import { genSaltSync, hashSync } from "bcryptjs"
-import { Prisma, PrismaClient, Role } from "../generated/prisma"
+import { Prisma, PrismaClient, Role, Status } from "../generated/prisma"
 
 const prisma = new PrismaClient()
 // 1. Dados de Usuários que são VETERINÁRIOS
@@ -143,8 +143,7 @@ export async function main() {
 		const produto = await prisma.produto.create({
 			data: {
 				nome: "Vacina V10",
-				precoCusto: 50.0,
-				precoVenda: 120.0,
+				preco: 50.0,
 				estoque: 100,
 				veterinarioId: perfilVetAna.id,
 			},
@@ -167,9 +166,10 @@ export async function main() {
 		const agendamento = await prisma.agendamento.create({
 			data: {
 				datahora: new Date(),
-				status: "CONCLUIDO",
+				status: Status.CONCLUIDO,
 				donoId: perfilDonoCarlos.id,
 				petId: petRex.id,
+				descricao: "Meu cachorro comeu nutela",
 			},
 		})
 		console.log(`Agendamento criado`)
