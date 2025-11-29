@@ -23,7 +23,7 @@ const menuItems = [
 	{
 		icon: LayoutDashboard,
 		label: "Dashboard",
-		href: "/dashboard",
+		href: "/charts",
 		admOnly: true,
 	},
 	{
