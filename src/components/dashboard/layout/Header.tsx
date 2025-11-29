@@ -1,8 +1,14 @@
 import { Bell, PawPrint } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
+import { UsuarioSemSenha } from "@/lib/types/user"
+import { Session } from "next-auth"
+import { redirect } from "next/navigation"
 
-export function Header() {
+export function Header({ user }: { user: Session }) {
+	if (!user.user) {
+		redirect("/signin")
+	}
 	return (
 		<header className="flex h-16 w-full items-center justify-between bg-emerald-950 px-6 text-white shadow-md">
 			{/* Lado Esquerdo: Logo e Nome da Clínica */}
@@ -31,12 +37,15 @@ export function Header() {
 
 				<div className="flex items-center gap-3 pl-4 border-l border-emerald-800">
 					<Avatar className="h-9 w-9 border-2 border-emerald-700">
-						<AvatarImage src="https://github.com/shadcn.png" alt="Dra. Ana" />
+						<AvatarImage
+							src={user.user.image || "/favicon.png"}
+							alt="Dra. Ana"
+						/>
 						<AvatarFallback>DA</AvatarFallback>
 					</Avatar>
 					<div className="flex-col text-right hidden sm:flex">
-						<span className="text-sm font-medium">Dra. Ana</span>
-						<span className="text-xs text-emerald-200">Clínica Central</span>
+						<span className="text-sm font-medium">{user.user.name}</span>
+						<span className="text-xs text-emerald-200">{user.user.role}</span>
 					</div>
 				</div>
 			</div>

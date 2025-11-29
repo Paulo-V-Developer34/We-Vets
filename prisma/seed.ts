@@ -8,6 +8,7 @@ const vetUsers = (password: string): Prisma.UserCreateInput[] => [
 		name: "Dra. Ana Silva",
 		email: "ana.vet@clinica.com",
 		password: password,
+		image: "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg",
 		role: Role.VETERINARIO,
 		// Criação aninhada do perfil de Veterinário
 		veterinario: {
@@ -21,6 +22,8 @@ const vetUsers = (password: string): Prisma.UserCreateInput[] => [
 		name: "Dr. João Costa",
 		email: "joao.vet@clinica.com",
 		password: password,
+		image:
+			"https://images.pexels.com/photos/19431271/pexels-photo-19431271.jpeg",
 		role: Role.VETERINARIO,
 		veterinario: {
 			create: {
