@@ -1,24 +1,23 @@
-"use client";
+"use client"
 
-import { login } from "@/lib/actions";
-import { FormMessage } from "@/lib/types/message";
-import { useActionState } from "react";
-import { toast } from "sonner";
+import { login } from "@/lib/actions/actions"
+import { FormMessage } from "@/lib/types/message"
+import { useActionState } from "react"
+import { toast } from "sonner"
 
 export default function LoginForm() {
-	const initialState: FormMessage = {message: " "}
+	const initialState: FormMessage = { message: " " }
 	const [state, formAction, isPending] = useActionState(login, initialState)
 	return (
 		<>
-			{
-				state.errors && toast("Erro", {
+			{state.errors &&
+				toast.error("Erro", {
 					description: state.errors.err[0],
 					action: {
 						label: "Ok",
 						onClick: () => console.log("Ok"),
 					},
-				})
-			}
+				})}
 			<div className="ControleTela">
 				<div className="ControleEsquerda">
 					{/* <!-- Imagem de fundo profissional --> */}
@@ -143,5 +142,5 @@ export default function LoginForm() {
 				</main>
 			</div>
 		</>
-	);
+	)
 }
