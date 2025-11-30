@@ -1,21 +1,52 @@
 "use server"
 
 import prisma from "../prisma"
-import { Kpi } from "../types/charts"
+import { Kpi, KpiCommon } from "../types/charts"
 
-export async function getKpi(): Promise<Kpi> {
+export async function getKpi(): Promise<KpiCommon[]> {
 	const [receita, agendamento, produtos, pets] = await Promise.all([
 		getReceita(),
 		getAgendamento(),
 		getProdutos(),
 		getPets(),
 	])
-	return {
-		receita: receita.receita,
-		agendamento: agendamento.agendamento,
-		produtos: produtos.produtos,
-		pets: pets.pets,
-	}
+
+	const kpi: KpiCommon[] = [
+		{
+			title: "Receita",
+			value: `R$ ${receita.receita.valorTotal}`,
+			otherValue: {
+				subTitle: "Média mensal",
+				subValue: `R$ ${receita.receita.media.toFixed(2)}`,
+			},
+		},
+		{
+			title: "Agendamento",
+			value: agendamento.agendamento.aFazer.toString(),
+			otherValue: {
+				subTitle: "Realizados",
+				subValue: agendamento.agendamento.feitos.toString(),
+			},
+		},
+		{
+			title: "Produtos em estoque",
+			value: produtos.produtos.estoque.toString(),
+			otherValue: {
+				subTitle: "Faltando",
+				subValue: produtos.produtos.estoque.toString(),
+			},
+		},
+		{
+			title: "Pets ativos",
+			value: pets.pets.quantidade.toString(),
+			otherValue: {
+				subTitle: "Últ. Cadastrado",
+				subValue: pets.pets.ultimoCadastrado.toDateString(),
+			},
+		},
+	]
+
+	return kpi
 }
 
 async function getReceita(): Promise<

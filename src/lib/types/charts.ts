@@ -17,6 +17,15 @@ export type Kpi = {
 	}
 }
 
+export type KpiCommon = {
+	title: string
+	value: string
+	otherValue?: {
+		subTitle: string
+		subValue: string
+	}
+}
+
 export type Receita = {
 	name: string
 	valor: number

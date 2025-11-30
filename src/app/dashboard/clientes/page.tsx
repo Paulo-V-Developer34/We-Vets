@@ -1,3 +1,4 @@
+import ChartHeader from "@/components/dashboard/charts/Header"
 import { Header } from "@/components/dashboard/clientes/Header"
 import { Kpis } from "@/components/dashboard/clientes/Kpis"
 import { ClientTable } from "@/components/dashboard/clientes/Table"
@@ -56,7 +57,12 @@ export default async function DashboardPage() {
 	return (
 		<div className="space-y-6">
 			{/* Header alinhado sem padding extra */}
-			<Header />
+			<ChartHeader
+				content={{
+					title: "Gestão de Clientes",
+					text: "Gerencie o relacionamento e histórico dos seus clientes.",
+				}}
+			/>
 
 			{/* KPIs expandindo para ocupar a largura disponível do container pai */}
 			<Kpis data={data.kpis} />

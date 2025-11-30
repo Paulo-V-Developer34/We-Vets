@@ -10,17 +10,18 @@ import {
 } from "@/components/ui/select"
 import { Download } from "lucide-react"
 
-export default function ChartHeader() {
+export default function ChartHeader({
+	content,
+}: {
+	content: { title: string; text: string }
+}) {
 	return (
 		<div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
 			<div>
 				<h1 className="text-3xl font-bold tracking-tight text-slate-900">
-					Dashboard
+					{content.title}
 				</h1>
-				<p className="text-slate-500">
-					Indicadores clínicos, próximos atendimentos e controle rápido do
-					estoque.
-				</p>
+				<p className="text-slate-500">{content.text}</p>
 			</div>
 
 			<div className="flex items-center gap-2">

@@ -41,16 +41,18 @@ import { use } from "react"
 // }
 
 export default function DashboardPage() {
-	// const [dataReceita, setDataReceita] = useState<Receita[] | null>(null)
-	// const [dataAtendimentos, setDataAtendimentos] = useState<Atendimento[] | null>(null)
-	// const [dataKpi, setDataKpi] = useState<Kpi | null>(null)
 	const kpi = use(getKpi())
 	const revenue = use(getRevenue())
 	const service = use(getHomeServices())
 
 	return (
 		<div className="space-y-6">
-			<ChartHeader />
+			<ChartHeader
+				content={{
+					title: "Dashboard",
+					text: "Indicadores clínicos, próximos atendimento e controle rápido do estoque",
+				}}
+			/>
 			<ChartKpi kpi={kpi} />
 			<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
 				<ChartRevenue dataReceita={revenue} />
