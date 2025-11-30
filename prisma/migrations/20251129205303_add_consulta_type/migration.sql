@@ -1,0 +1,5 @@
+-- CreateEnum
+CREATE TYPE "TipoConsulta" AS ENUM ('CONSULTA', 'VACINACAO', 'ESTETICA', 'CIRURGIA', 'EMERGENCIA', 'EXAMES', 'INTERNACAO', 'RETORNO');
+
+-- AlterTable
+ALTER TABLE "consultas" ADD COLUMN     "tipo" "TipoConsulta" NOT NULL DEFAULT 'CONSULTA';

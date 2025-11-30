@@ -1,6 +1,6 @@
 export type Kpi = {
 	receita: {
-		valotTotal: number
+		valorTotal: number
 		media: number
 	}
 	agendamento: {
@@ -18,11 +18,22 @@ export type Kpi = {
 }
 
 export type Receita = {
-	mes: string
+	name: string
 	valor: number
 }
 
 export type Atendimento = {
-	nome: string
+	name: string
 	valor: number
+}
+
+export type ChartsHomeType = {
+	kpi: Kpi
+	services: Atendimento[]
+	revenue: Receita[]
+}
+
+export type FaturamentoMes = {
+	mes: string
+	faturamento: string
 }

@@ -101,6 +101,16 @@ enum Status {
   CANCELADO
 }
 
+enum TipoConsulta {
+  CONSULTA
+  VACINACAO
+  ESTETICA
+  CIRURGIA
+  EMERGENCIA
+  EXAMES
+  INTERNACAO
+  RETORNO
+}
 
 // --- SUAS TABELAS DE DOMÍNIO (Integradas) ---
 
@@ -161,6 +171,7 @@ model Pet {
   especie      String
   raca         String?
   nascimento   DateTime?
+  cadastro     DateTime      @default(now())
   
   pertence     Pertence[]
   agendamentos Agendamento[]
@@ -192,6 +203,7 @@ model Consulta {
   id            String      @id @default(uuid())
   diagnostico   String      @db.Text // Prisma 6 suporta @db.Text se o banco suportar
   observacoes   String?     @db.Text
+  tipo          TipoConsulta @default(CONSULTA)
   
   agendamentoId String      @unique
   veterinarioId String

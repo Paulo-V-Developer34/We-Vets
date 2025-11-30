@@ -35,45 +35,39 @@ import {
 	Bar,
 	Cell,
 } from "recharts"
-import { Atendimento, Kpi, Receita } from "@/lib/types/chats"
 
-// --- DADOS MOCKADOS (Para simular o banco de dados) ---
+// Interfaces reutilizáveis
+export interface KPIData {
+	receitaTotal: number
+	ticketMedio: number
+	agendamentosTotal: number
+	agendamentosConfirmados: number
+	produtosEstoque: number
+	produtosAlerta: number
+	pacientesAtivos: number
+	ultimaAtualizacaoPacientes: string
+}
 
-// const dataReceita = [
-// 	{ name: "Abr", valor: 4200 },
-// 	{ name: "Mai", valor: 5100 },
-// 	{ name: "Jun", valor: 4900 },
-// 	{ name: "Jul", valor: 6200 },
-// 	{ name: "Ago", valor: 7800 },
-// 	{ name: "Set", valor: 7400 },
-// ]
+export interface ChartDataReceita {
+	name: string
+	valor: number
+}
 
-// const dataAtendimentos = [
-// 	{ name: "Consultas", valor: 220 },
-// 	{ name: "Vacinação", valor: 140 },
-// 	{ name: "Estética", valor: 60 },
-// 	{ name: "Cirurgia", valor: 20 },
-// 	{ name: "Emergência", valor: 25 },
-// 	{ name: "Exames", valor: 75 },
-// 	{ name: "Internação", valor: 10 },
-// 	{ name: "Retorno", valor: 50 },
-// ]
+export interface ChartDataAtendimento {
+	name: string
+	valor: number
+}
 
-export default function DashboardPage({
-	dataReceita,
-	dataAtendimentos,
-	kpi,
-}: {
-	dataReceita: Receita[]
-	dataAtendimentos: Atendimento[]
-	kpi: Kpi
-}) {
-	if (!dataReceita || !dataAtendimentos || !kpi) {
-		throw new Error("Não foi possível carregar os dados do banco de dados")
-	}
+export interface DashboardData {
+	kpis: KPIData
+	graficoReceita: ChartDataReceita[]
+	graficoAtendimentos: ChartDataAtendimento[]
+}
+
+export default function DashboardView({ data }: { data: DashboardData }) {
 	return (
-		<div className="space-y-6">
-			{/* 1. Header da Página */}
+		<div className="space-y-6 animate-in fade-in duration-500">
+			{/* Header */}
 			<div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
 				<div>
 					<h1 className="text-3xl font-bold tracking-tight text-slate-900">
@@ -104,7 +98,7 @@ export default function DashboardPage({
 				</div>
 			</div>
 
-			{/* 2. Grid de KPIs (Indicadores) */}
+			{/* Grid de KPIs */}
 			<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
 				<Card className="border-l-4 border-l-emerald-600 shadow-sm">
 					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -115,12 +109,18 @@ export default function DashboardPage({
 					</CardHeader>
 					<CardContent>
 						<div className="text-2xl font-bold text-slate-900">
-							R$ {kpi.receita.valotTotal}
+							{new Intl.NumberFormat("pt-BR", {
+								style: "currency",
+								currency: "BRL",
+							}).format(data.kpis.receitaTotal)}
 						</div>
 						<p className="text-xs text-slate-500 mt-1">
 							Ticket médio:{" "}
 							<span className="font-medium text-emerald-700">
-								R$ {kpi.receita.media}
+								{new Intl.NumberFormat("pt-BR", {
+									style: "currency",
+									currency: "BRL",
+								}).format(data.kpis.ticketMedio)}
 							</span>
 						</p>
 					</CardContent>
@@ -135,12 +135,12 @@ export default function DashboardPage({
 					</CardHeader>
 					<CardContent>
 						<div className="text-2xl font-bold text-slate-900">
-							{kpi.agendamento.aFazer}
+							{data.kpis.agendamentosTotal}
 						</div>
 						<p className="text-xs text-slate-500 mt-1">
-							Realizados:{" "}
+							Confirmados:{" "}
 							<span className="font-medium text-emerald-700">
-								{kpi.agendamento.feitos}
+								{data.kpis.agendamentosConfirmados}
 							</span>
 						</p>
 					</CardContent>
@@ -155,12 +155,12 @@ export default function DashboardPage({
 					</CardHeader>
 					<CardContent>
 						<div className="text-2xl font-bold text-slate-900">
-							{kpi.produtos.estoque}
+							{data.kpis.produtosEstoque}
 						</div>
 						<p className="text-xs text-slate-500 mt-1">
-							Faltando:{" "}
+							Com alerta:{" "}
 							<span className="font-medium text-red-600">
-								{kpi.produtos.faltando}
+								{data.kpis.produtosAlerta}
 							</span>
 						</p>
 					</CardContent>
@@ -169,24 +169,24 @@ export default function DashboardPage({
 				<Card className="border-r-4 border-r-emerald-600 shadow-sm">
 					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
 						<CardTitle className="text-sm font-medium text-slate-600">
-							Pets ativos
+							Pacientes ativos
 						</CardTitle>
 						<Users className="h-4 w-4 text-emerald-600" />
 					</CardHeader>
 					<CardContent>
 						<div className="text-2xl font-bold text-slate-900">
-							{kpi.pets.quantidade}
+							{data.kpis.pacientesAtivos}
 						</div>
 						<p className="text-xs text-slate-500 mt-1">
-							Últ. cadastro: {kpi.pets.ultimoCadastrado.toString()}
+							Últ. cadastro: {data.kpis.ultimaAtualizacaoPacientes}
 						</p>
 					</CardContent>
 				</Card>
 			</div>
 
-			{/* 3. Seção de Gráficos */}
+			{/* Gráficos */}
 			<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-				{/* Gráfico de Linha/Área (Ocupa 4 colunas em telas grandes) */}
+				{/* Gráfico de Receita */}
 				<Card className="col-span-4 shadow-sm">
 					<CardHeader>
 						<CardTitle className="text-lg text-slate-800 flex items-center gap-2">
@@ -201,7 +201,7 @@ export default function DashboardPage({
 						<div className="h-[300px] w-full">
 							<ResponsiveContainer width="100%" height="100%">
 								<AreaChart
-									data={dataReceita}
+									data={data.graficoReceita}
 									margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
 								>
 									<defs>
@@ -241,6 +241,12 @@ export default function DashboardPage({
 											boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
 										}}
 										cursor={{ stroke: "#10b981", strokeWidth: 1 }}
+										formatter={(value: number) =>
+											new Intl.NumberFormat("pt-BR", {
+												style: "currency",
+												currency: "BRL",
+											}).format(value)
+										}
 									/>
 									<Area
 										type="monotone"
@@ -256,7 +262,7 @@ export default function DashboardPage({
 					</CardContent>
 				</Card>
 
-				{/* Gráfico de Barras (Ocupa 3 colunas em telas grandes) */}
+				{/* Gráfico de Atendimentos */}
 				<Card className="col-span-3 shadow-sm">
 					<CardHeader>
 						<CardTitle className="text-lg text-slate-800 flex items-center gap-2">
@@ -270,17 +276,8 @@ export default function DashboardPage({
 					<CardContent>
 						<div className="h-[300px] w-full">
 							<ResponsiveContainer width="100%" height="100%">
-								{/* <BarChart
-									data={dataAtendimentos}
-									layout="vertical"
-									margin={{ top: 0, right: 0, left: 40, bottom: 0 }}
-								> */}
-								{/* Layout vertical para acomodar melhor os nomes se a tela for pequena, 
-                                    mas na imagem é vertical normal. Vou ajustar para ficar idêntico à imagem (colunas verticais) */}
-								{/* </BarChart> */}
-								{/* Correção: Voltando para layout horizontal (padrão) conforme imagem */}
 								<BarChart
-									data={dataAtendimentos}
+									data={data.graficoAtendimentos}
 									margin={{ top: 0, right: 0, left: -20, bottom: 0 }}
 								>
 									<CartesianGrid
@@ -306,7 +303,7 @@ export default function DashboardPage({
 										contentStyle={{ borderRadius: "8px", border: "none" }}
 									/>
 									<Bar dataKey="valor" radius={[4, 4, 0, 0]}>
-										{dataAtendimentos.map((entry, index) => (
+										{data.graficoAtendimentos.map((entry, index) => (
 											<Cell key={`cell-${index}`} fill="#15803d" />
 										))}
 									</Bar>
