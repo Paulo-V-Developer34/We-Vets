@@ -22,7 +22,7 @@ async function getReceita(): Promise<
 	Omit<Kpi, "agendamento" | "produtos" | "pets">
 > {
 	//calculando a receita
-	const [receitas, primeiraData, ultimaData] = await Promise.all([
+	const [receitas, primeiraData] = await Promise.all([
 		prisma.fatosFinanceiros.findMany({
 			select: {
 				valor: true,
@@ -37,27 +37,19 @@ async function getReceita(): Promise<
 				data: true, // retorna apenas o campo "data"
 			},
 		}),
-
-		// Último registro (maior data)
-		prisma.fatosFinanceiros.findFirst({
-			orderBy: {
-				data: "desc", // ordena do mais recente para o mais antigo
-			},
-			select: {
-				data: true,
-			},
-		}),
 	])
 
-	if (!primeiraData || !ultimaData || !receitas) {
+	if (!primeiraData || !receitas) {
 		throw new Error("Não foi possível obter os dados da receita")
 	}
 
 	const anoInicial = primeiraData.data.getFullYear()
 	const mesInicial = primeiraData.data.getMonth() // Janeiro = 0
 
-	const anoFinal = ultimaData.data.getFullYear()
-	const mesFinal = ultimaData.data.getMonth()
+	const dataHoje = new Date()
+
+	const anoFinal = dataHoje.getFullYear()
+	const mesFinal = dataHoje.getMonth()
 
 	// diferença total em meses
 	const diferencaMeses =
@@ -96,7 +88,10 @@ async function getAgendamento(): Promise<
 	}
 
 	return {
-		agendamento: { aFazer: agendamentosAFazer, feitos: agendamentosConcluidos },
+		agendamento: {
+			aFazer: agendamentosAFazer,
+			feitos: agendamentosConcluidos,
+		},
 	}
 }
 

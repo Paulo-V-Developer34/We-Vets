@@ -32,8 +32,3 @@ export type ChartsHomeType = {
 	services: Atendimento[]
 	revenue: Receita[]
 }
-
-export type FaturamentoMes = {
-	mes: string
-	faturamento: string
-}
