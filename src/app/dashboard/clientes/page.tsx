@@ -1,7 +1,7 @@
-import ChartHeader from "@/components/dashboard/charts/Header"
-import { Header } from "@/components/dashboard/clientes/Header"
-import { Kpis } from "@/components/dashboard/clientes/Kpis"
+import ChartHeader from "@/components/dashboard/common/Header"
+import ChartKpi from "@/components/dashboard/common/Kpis"
 import { ClientTable } from "@/components/dashboard/clientes/Table"
+import { KpiCommon } from "@/lib/types/charts"
 import { Client, KpiClient } from "@/lib/types/client"
 
 async function getDashboardData() {
@@ -54,6 +54,21 @@ async function getDashboardData() {
 export default async function DashboardPage() {
 	const data = await getDashboardData()
 
+	const kpi: KpiCommon[] = [
+		{
+			title: "Total de Clientes",
+			value: data.kpis.totalClients.toString(),
+		},
+		{
+			title: "Clientes Ativos",
+			value: data.kpis.totalClients.toString(),
+		},
+		{
+			title: "Novos Clientes",
+			value: data.kpis.newClients.toString(),
+		},
+	]
+
 	return (
 		<div className="space-y-6">
 			{/* Header alinhado sem padding extra */}
@@ -65,7 +80,7 @@ export default async function DashboardPage() {
 			/>
 
 			{/* KPIs expandindo para ocupar a largura disponível do container pai */}
-			<Kpis data={data.kpis} />
+			<ChartKpi kpi={kpi} />
 
 			{/* Tabela ocupando a largura total */}
 			<ClientTable initialData={data.clients} />
