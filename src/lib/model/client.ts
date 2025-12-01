@@ -1,6 +1,6 @@
 "use server"
 
-import z from "zod"
+import z, { ZodError } from "zod"
 import { Dono } from "../../../generated/prisma"
 import prisma from "../prisma"
 import { FormMessage } from "../types/message"
@@ -16,11 +16,26 @@ export async function clientCreat(
 ): Promise<FormMessage> {
 	//verificando o usuário
 
+	const senha = formData.get("password") as string | null
+	// Configuração de senha
+
+	if (!senha) {
+		return {
+			message: "Um erro ocorreu",
+			errors: {
+				err: ["Não foi possível obter a senha"],
+			},
+			timestamp: Date.now(),
+		}
+	}
+	const salt = genSaltSync(10)
+	const hash = hashSync(senha, salt)
+
 	const cliente = {
 		email: formData.get("email") as string | null,
 		role: "DONO",
 		name: formData.get("name") as string | null,
-		password: formData.get("password") as string | null,
+		password: senha,
 		endereco: formData.get("address") as string | null,
 		telefone: formData.get("phone") as string | null,
 		image: formData.get("image") as string | null,
@@ -32,7 +47,17 @@ export async function clientCreat(
 		//criando usuário
 		const user = await prisma.user.create({
 			data: {
-				...clienteValido,
+				email: clienteValido.email,
+				image: clienteValido.image,
+				name: clienteValido.name,
+				password: hash,
+				role: clienteValido.role,
+				dono: {
+					create: {
+						endereco: clienteValido.endereco,
+						telefone: clienteValido.telefone,
+					},
+				},
 			},
 		})
 
@@ -41,10 +66,20 @@ export async function clientCreat(
 		}
 		revalidatePath("/dashboard/clientes")
 	} catch (error) {
+		if (error instanceof ZodError) {
+			return {
+				message: "Um erro ocorreu",
+				errors: {
+					err: [error.issues[0].message],
+				},
+				timestamp: Date.now(),
+			}
+		}
+
 		return {
 			message: "Um erro ocorreu",
 			errors: {
-				err: error as string[],
+				err: ["Erro no servidor"],
 			},
 			timestamp: Date.now(),
 		}
@@ -125,10 +160,20 @@ export async function clientUpdate(
 
 		revalidatePath("/dashboard/clientes")
 	} catch (error) {
+		if (error instanceof ZodError) {
+			return {
+				message: "Um erro ocorreu",
+				errors: {
+					err: [error.issues[0].message],
+				},
+				timestamp: Date.now(),
+			}
+		}
+
 		return {
 			message: "Um erro ocorreu",
 			errors: {
-				err: error as string[],
+				err: ["Erro no servidor"],
 			},
 			timestamp: Date.now(),
 		}

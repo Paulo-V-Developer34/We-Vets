@@ -114,9 +114,6 @@ export function ClientModal({
 							// Mas o defaultValue acima já cobre a reabertura.
 							className={state.errors?.err ? "border-red-500" : ""}
 						/>
-						{state.errors?.err && (
-							<p className="text-sm text-red-500">{state.errors.err[0]}</p>
-						)}
 					</div>
 
 					{/* ... Resto dos inputs (Email, Status, LTV) ... */}
@@ -133,9 +130,6 @@ export function ClientModal({
 							defaultValue={clientToEdit?.email || ""}
 							className={state.errors?.err ? "border-red-500" : ""}
 						/>
-						{state.errors?.err && (
-							<p className="text-sm text-red-500">{state.errors.err[0]}</p>
-						)}
 					</div>
 
 					{/* Campo Senha */}
@@ -149,9 +143,6 @@ export function ClientModal({
 							defaultValue={clientToEdit?.password || ""}
 							className={state.errors?.err ? "border-red-500" : ""}
 						/>
-						{state.errors?.err && (
-							<p className="text-sm text-red-500">{state.errors.err[0]}</p>
-						)}
 					</div>
 
 					{/* Campo Endereco */}
@@ -165,9 +156,6 @@ export function ClientModal({
 							defaultValue={clientToEdit?.endereco || ""}
 							className={state.errors?.err ? "border-red-500" : ""}
 						/>
-						{state.errors?.err && (
-							<p className="text-sm text-red-500">{state.errors.err[0]}</p>
-						)}
 					</div>
 
 					<div className="grid grid-cols-2 gap-4">
@@ -181,9 +169,6 @@ export function ClientModal({
 								defaultValue={clientToEdit?.telefone || ""}
 								className={state.errors?.err ? "border-red-500" : ""}
 							/>
-							{state.errors?.err && (
-								<p className="text-sm text-red-500">{state.errors.err[0]}</p>
-							)}
 						</div>
 
 						<div className="space-y-2">
@@ -196,13 +181,13 @@ export function ClientModal({
 								defaultValue={clientToEdit?.image || ""}
 								className={state.errors?.err ? "border-red-500" : ""}
 							/>
-							{state.errors?.err && (
-								<p className="text-sm text-red-500">{state.errors.err[0]}</p>
-							)}
 						</div>
 					</div>
 
 					<DialogFooter>
+						{state.errors?.err && (
+							<p className="text-sm text-red-500">{state.errors.err[0]}</p>
+						)}
 						<Button
 							type="button"
 							variant="outline"
