@@ -23,20 +23,24 @@ import { Button } from "@/components/ui/button"
 import { saveClientAction } from "@/lib/actions/clientAction"
 import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
+import { FormMessage } from "@/lib/types/message"
+import { clientCreat } from "@/lib/model/client"
+import { ClienteSchemaWithID } from "@/lib/types/schema/cliente"
+import { string } from "zod"
 
 interface ClientModalProps {
 	isOpen: boolean
 	onClose: () => void
-	clientToEdit?: Client | null
+	clientToEdit?: ClienteSchemaWithID | null
 	onSuccess?: () => void
 }
 
 // Estado inicial agora precisa do timestamp zerado
-const initialState = {
-	success: false,
+const initialState: FormMessage = {
 	message: "",
-	errors: {},
-	fields: {},
+	errors: {
+		err: [],
+	},
 	timestamp: 0, // <--- Inicialize com 0
 }
 
@@ -46,10 +50,7 @@ export function ClientModal({
 	clientToEdit,
 	onSuccess,
 }: ClientModalProps) {
-	const [state, action, isPending] = useActionState(
-		saveClientAction,
-		initialState,
-	)
+	const [state, action, isPending] = useActionState(clientCreat, initialState)
 
 	// Ref para guardar o ID da última notificação exibida
 	const lastToastTimestamp = useRef(state.timestamp)
@@ -64,12 +65,12 @@ export function ClientModal({
 		}
 
 		// Se chegou aqui, é uma NOVA atualização de estado
-		if (state.success) {
+		if (state.errors) {
+			toast.error(state.errors.err[0])
+		} else if (state.message) {
 			toast.success(state.message)
 			if (onSuccess) onSuccess()
 			onClose() // Fecha o modal
-		} else if (state.message) {
-			toast.error(state.message)
 		}
 
 		// Atualiza o ref para dizer "já processei essa resposta"
@@ -111,10 +112,10 @@ export function ClientModal({
 							defaultValue={clientToEdit ? clientToEdit.name : ""}
 							// Se houver erro E o modal não foi fechado/reaberto (ou seja, tentativa falha), mostramos o valor digitado.
 							// Mas o defaultValue acima já cobre a reabertura.
-							className={state.errors?.name ? "border-red-500" : ""}
+							className={state.errors?.err ? "border-red-500" : ""}
 						/>
-						{state.errors?.name && (
-							<p className="text-sm text-red-500">{state.errors.name[0]}</p>
+						{state.errors?.err && (
+							<p className="text-sm text-red-500">{state.errors.err[0]}</p>
 						)}
 					</div>
 
@@ -130,44 +131,73 @@ export function ClientModal({
 							type="email"
 							placeholder="contato@exemplo.com"
 							defaultValue={clientToEdit?.email || ""}
-							className={state.errors?.email ? "border-red-500" : ""}
+							className={state.errors?.err ? "border-red-500" : ""}
 						/>
-						{state.errors?.email && (
-							<p className="text-sm text-red-500">{state.errors.email[0]}</p>
+						{state.errors?.err && (
+							<p className="text-sm text-red-500">{state.errors.err[0]}</p>
+						)}
+					</div>
+
+					{/* Campo Senha */}
+					<div className="space-y-2">
+						<Label htmlFor="password">Senha</Label>
+						<Input
+							id="password"
+							name="password"
+							type="password"
+							placeholder="senhasegura123"
+							defaultValue={clientToEdit?.password || ""}
+							className={state.errors?.err ? "border-red-500" : ""}
+						/>
+						{state.errors?.err && (
+							<p className="text-sm text-red-500">{state.errors.err[0]}</p>
+						)}
+					</div>
+
+					{/* Campo Endereco */}
+					<div className="space-y-2">
+						<Label htmlFor="address">Endereco</Label>
+						<Input
+							id="address"
+							name="address"
+							type="text"
+							placeholder="Av. Senador Cleiton"
+							defaultValue={clientToEdit?.endereco || ""}
+							className={state.errors?.err ? "border-red-500" : ""}
+						/>
+						{state.errors?.err && (
+							<p className="text-sm text-red-500">{state.errors.err[0]}</p>
 						)}
 					</div>
 
 					<div className="grid grid-cols-2 gap-4">
 						<div className="space-y-2">
-							<Label htmlFor="status">Status</Label>
-							<Select
-								name="status"
-								defaultValue={clientToEdit?.status || "Ativo"}
-							>
-								<SelectTrigger>
-									<SelectValue placeholder="Selecione" />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="Ativo">Ativo</SelectItem>
-									<SelectItem value="Pendente">Pendente</SelectItem>
-									<SelectItem value="Inativo">Inativo</SelectItem>
-								</SelectContent>
-							</Select>
+							<Label htmlFor="phone">Telefone</Label>
+							<Input
+								id="phone"
+								name="phone"
+								type="text"
+								placeholder="(13)12345-1234"
+								defaultValue={clientToEdit?.telefone || ""}
+								className={state.errors?.err ? "border-red-500" : ""}
+							/>
+							{state.errors?.err && (
+								<p className="text-sm text-red-500">{state.errors.err[0]}</p>
+							)}
 						</div>
 
 						<div className="space-y-2">
-							<Label htmlFor="ltv">LTV (R$)</Label>
+							<Label htmlFor="image">URL da imagem</Label>
 							<Input
-								id="ltv"
-								name="ltv"
-								type="number"
-								step="0.01"
-								placeholder="0.00"
-								defaultValue={clientToEdit?.ltv || ""}
-								className={state.errors?.ltv ? "border-red-500" : ""}
+								id="image"
+								name="image"
+								type="text"
+								placeholder="https://drive/foto.png"
+								defaultValue={clientToEdit?.image || ""}
+								className={state.errors?.err ? "border-red-500" : ""}
 							/>
-							{state.errors?.ltv && (
-								<p className="text-sm text-red-500">{state.errors.ltv[0]}</p>
+							{state.errors?.err && (
+								<p className="text-sm text-red-500">{state.errors.err[0]}</p>
 							)}
 						</div>
 					</div>

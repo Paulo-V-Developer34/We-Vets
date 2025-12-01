@@ -8,7 +8,7 @@ export const DonoSchema = z.object({
 		.optional()
 		.nullable(),
 	endereco: z.string().optional().nullable(),
-	userId: z.string().uuid().optional(),
+	userId: z.uuid().optional(),
 })
 
 export type DonoForm = z.infer<typeof DonoSchema>

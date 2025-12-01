@@ -14,6 +14,7 @@ export async function login(
 		//obs: o código abaixo nunca retornará, pois o signIn redireciona o usuário antes de chegar aqui
 		return {
 			message: "Login feito com sucesso",
+			timestamp: Date.now(),
 		}
 	} catch (error) {
 		if (error instanceof AuthError) {
@@ -24,6 +25,7 @@ export async function login(
 						errors: {
 							err: ["Credenciais inválidas"],
 						},
+						timestamp: Date.now(),
 					}
 				default:
 					return {
@@ -31,6 +33,7 @@ export async function login(
 						errors: {
 							err: ["Falha no sistema"],
 						},
+						timestamp: Date.now(),
 					}
 			}
 		}

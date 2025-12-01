@@ -6,7 +6,7 @@ import { useActionState } from "react"
 import { toast } from "sonner"
 
 export default function LoginForm() {
-	const initialState: FormMessage = { message: " " }
+	const initialState: FormMessage = { message: " ", timestamp: Date.now() }
 	const [state, formAction, isPending] = useActionState(login, initialState)
 	return (
 		<>

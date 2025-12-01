@@ -1,43 +1,50 @@
 "use server"
 
-import { FormMessage } from "../types/message";
+import { FormMessage } from "../types/message"
 
 export async function userCreat(
-  prevState: FormMessage,
-  formData: FormData,
+	prevState: FormMessage,
+	formData: FormData,
 ): Promise<FormMessage> {
-    //code
-    return {
-        message: "hello world"
-    }
+	// const user: User = {
+
+	// }
+
+	return {
+		message: "hello world",
+		timestamp: Date.now(),
+	}
 }
 
 export async function userRead(
-  prevState: FormMessage,
-  formData: FormData,
+	prevState: FormMessage,
+	formData: FormData,
 ): Promise<FormMessage> {
-    //code
-    return {
-        message: "hello world"
-    }
+	//code
+	return {
+		message: "hello world",
+		timestamp: Date.now(),
+	}
 }
 
 export async function userUpdate(
-  prevState: FormMessage,
-  formData: FormData,
+	prevState: FormMessage,
+	formData: FormData,
 ): Promise<FormMessage> {
-    //code
-    return {
-        message: "hello world"
-    }
+	//code
+	return {
+		message: "hello world",
+		timestamp: Date.now(),
+	}
 }
 
 export async function userDelete(
-  prevState: FormMessage,
-  formData: FormData,
+	prevState: FormMessage,
+	formData: FormData,
 ): Promise<FormMessage> {
-    //code
-    return {
-        message: "hello world"
-    }
+	//code
+	return {
+		message: "hello world",
+		timestamp: Date.now(),
+	}
 }
