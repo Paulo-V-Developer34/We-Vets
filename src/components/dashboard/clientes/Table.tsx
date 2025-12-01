@@ -1,5 +1,6 @@
 "use client"
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useState } from "react"
 import { useRouter } from "next/navigation" // Import para refresh da página
 import { Client } from "@/lib/types/client"
@@ -16,24 +17,27 @@ import { Badge } from "@/components/ui/badge"
 import { Edit2, Trash2, Plus, Search } from "lucide-react"
 import { toast } from "sonner"
 import { ClientModal } from "./ClientModal"
+import { Dono, User } from "../../../../generated/prisma"
+import { ClienteUser } from "@/lib/types/schema/cliente"
+import { clientDelete } from "@/lib/model/client"
 
 interface ClientTableProps {
-	initialData: Client[]
+	initialData: User[]
 }
 
-export function ClientTable({ initialData }: ClientTableProps) {
+export function ClientTable({ initialData }: { initialData: ClienteUser[] }) {
 	const router = useRouter() // Hook para recarregar dados do servidor
 	const [filterStatus, setFilterStatus] = useState("todos")
 
 	// Estados do Modal
 	const [isModalOpen, setIsModalOpen] = useState(false)
-	const [selectedClient, setSelectedClient] = useState<Client | null>(null)
+	const [selectedClient, setSelectedClient] = useState<ClienteUser | null>(null)
 
 	// Filtragem (Client-side)
 	// Nota: initialData vem atualizado do servidor quando router.refresh() é chamado
-	const filteredData = initialData.filter((client) => {
+	const filteredData = initialData.filter((user) => {
 		if (filterStatus === "todos") return true
-		return client.status.toLowerCase() === filterStatus
+		// return (user?.name || "").toLowerCase() === filterStatus
 	})
 
 	// Ação: Abrir modal para CRIAR
@@ -43,7 +47,7 @@ export function ClientTable({ initialData }: ClientTableProps) {
 	}
 
 	// Ação: Abrir modal para EDITAR
-	const handleEdit = (client: Client) => {
+	const handleEdit = (client: ClienteUser) => {
 		setSelectedClient(client)
 		setIsModalOpen(true)
 	}
@@ -57,11 +61,16 @@ export function ClientTable({ initialData }: ClientTableProps) {
 	}
 
 	// Ação: DELETAR (Ainda client-side simulado por enquanto)
-	const handleDelete = (id: string) => {
+	const handleDelete = async (id: string) => {
 		// Para deletar via Server Action, você criaria uma action similar à de salvar
-		toast.error("Funcionalidade de deletar", {
-			description: "Necessário implementar Server Action de delete.",
-		})
+		const resultado = await clientDelete(id)
+
+		if (resultado.errors) {
+			toast.error(resultado.errors.err[0])
+			// aqui você pode atualizar o estado ou refazer um fetch
+		} else {
+			toast.success("Usuário deletado com sucesso")
+		}
 	}
 
 	return (
@@ -109,10 +118,10 @@ export function ClientTable({ initialData }: ClientTableProps) {
 			<div className="rounded-md border bg-white shadow-sm overflow-hidden">
 				<div className="bg-emerald-700 px-4 py-3 border-b border-emerald-800">
 					<div className="grid grid-cols-6 gap-4 text-xs font-semibold text-white uppercase tracking-wider">
-						<div className="col-span-2">Cliente / Email</div>
-						<div>Status</div>
-						<div>Última Compra</div>
-						<div>LTV (Valor)</div>
+						<div className="col-span-2">Nome / Email</div>
+						<div>Imagem</div>
+						<div>Telefone</div>
+						<div>Criado em</div>
 						<div className="text-right">Ações</div>
 					</div>
 				</div>
@@ -131,27 +140,21 @@ export function ClientTable({ initialData }: ClientTableProps) {
 										</span>
 									</div>
 								</TableCell>
-								<TableCell>
-									<Badge
-										className={`${
-											client.status === "Ativo"
-												? "bg-emerald-100 text-emerald-800 hover:bg-emerald-100"
-												: client.status === "Inativo"
-													? "bg-red-100 text-red-800 hover:bg-red-100"
-													: "bg-yellow-100 text-yellow-800 hover:bg-yellow-100"
-										}`}
-									>
-										{client.status}
-									</Badge>
-								</TableCell>
+								<TableCell></TableCell>
 								<TableCell className="text-muted-foreground">
-									{client.lastPurchase}
+									<Avatar className="h-9 w-9 border-2 border-emerald-700">
+										<AvatarImage
+											src={client.image || "/favicon.png"}
+											alt="Dra. Ana"
+										/>
+										<AvatarFallback>DA</AvatarFallback>
+									</Avatar>
 								</TableCell>
 								<TableCell className="font-bold text-emerald-950">
-									{new Intl.NumberFormat("pt-BR", {
-										style: "currency",
-										currency: "BRL",
-									}).format(client.ltv)}
+									{client.dono?.telefone}
+								</TableCell>
+								<TableCell className="font-bold text-emerald-950">
+									{client.createdAt.toDateString()}
 								</TableCell>
 								<TableCell className="text-right">
 									<div className="flex justify-end gap-2">

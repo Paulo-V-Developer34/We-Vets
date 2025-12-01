@@ -1,13 +1,13 @@
 "use server"
 
 import z, { ZodError } from "zod"
-import { Dono } from "../../../generated/prisma"
+import { Dono, User } from "../../../generated/prisma"
 import prisma from "../prisma"
 import { FormMessage } from "../types/message"
 import { DonoSchema } from "../types/schema/owner"
 import { UserSchema } from "../types/schema/user"
 import { revalidatePath } from "next/cache"
-import { clienteSchema } from "../types/schema/cliente"
+import { clienteSchema, ClienteUser } from "../types/schema/cliente"
 import { genSaltSync, hashSync } from "bcryptjs"
 
 export async function clientCreat(
@@ -91,15 +91,54 @@ export async function clientCreat(
 	}
 }
 
-export async function clientRead(): Promise<Dono[]> {
+export async function clientRead(): Promise<ClienteUser[]> {
 	//code
-	const clientes = await prisma.dono.findMany()
+	const clientes = await prisma.user.findMany({
+		include: {
+			dono: true,
+		},
+		where: {
+			dono: {
+				isNot: null,
+			},
+		},
+	})
 
 	if (!clientes) {
 		throw new Error("Não foi possível obter os dados dos clientes")
 	}
 
 	return clientes
+}
+
+export async function clientReadOne(
+	prevState: FormMessage,
+	formData: FormData,
+): Promise<ClienteUser> {
+	//code
+	const id = formData.get("id") as string | null
+
+	if (!id) {
+		throw new Error("Não foi possível obter o id do cliente")
+	}
+
+	const cliente = await prisma.user.findUnique({
+		where: {
+			id: id,
+			dono: {
+				isNot: null,
+			},
+		},
+		include: {
+			dono: true,
+		},
+	})
+
+	if (!cliente) {
+		throw new Error("Não foi possível obter os dados dos cliente")
+	}
+
+	return cliente
 }
 
 export async function clientUpdate(
@@ -150,7 +189,17 @@ export async function clientUpdate(
 				id: userID,
 			},
 			data: {
-				...clienteValido,
+				email: clienteValido.email,
+				image: clienteValido.image,
+				name: clienteValido.name,
+				password: hash,
+				role: clienteValido.role,
+				dono: {
+					update: {
+						endereco: clienteValido.endereco,
+						telefone: clienteValido.telefone,
+					},
+				},
 			},
 		})
 
@@ -185,11 +234,8 @@ export async function clientUpdate(
 	}
 }
 
-export async function clientDelete(
-	prevState: FormMessage,
-	formData: FormData,
-): Promise<FormMessage> {
-	const userID = formData.get("id") as string | null
+export async function clientDelete(id: string): Promise<FormMessage> {
+	const userID = id
 	if (!userID) {
 		return {
 			message: "Um erro ocorreu",
@@ -200,9 +246,12 @@ export async function clientDelete(
 		}
 	}
 
-	const userDeletado = prisma.user.delete({
+	const userDeletado = await prisma.user.delete({
 		where: {
 			id: userID,
+		},
+		include: {
+			dono: true,
 		},
 	})
 
@@ -215,6 +264,8 @@ export async function clientDelete(
 			timestamp: Date.now(),
 		}
 	}
+
+	revalidatePath("/dashboard/clientes")
 
 	return {
 		message: "Usuário deletado com sucesso",

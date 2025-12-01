@@ -1,849 +1,688 @@
-import { genSaltSync, hashSync } from "bcryptjs"
-import { Prisma, PrismaClient, Role, Status } from "../generated/prisma"
+import {
+	PrismaClient,
+	Prisma,
+	Role,
+	Status,
+	TipoConsulta,
+} from "../generated/prisma"
+import { hash } from "bcryptjs"
 
 const prisma = new PrismaClient()
 
-// Dados globais
-// const dataEspecifica: Date = new Date(2025, 8, 25, 10, 30, 0)
-// const dataEspecifica2: Date = new Date(2025, 9, 25, 10, 30, 0)
+// ==================== HELPER FUNCTIONS ====================
 
-const vetUsers = (password: string): Prisma.UserCreateInput[] => [
-	// Originais
-	{
-		name: "Dra. Ana Silva",
-		email: "ana.vet@clinica.com",
-		password: password,
-		image: "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg",
-		role: Role.VETERINARIO,
-		veterinario: {
-			create: { crmv: "12345-SP", especialidade: "Clínica Geral" },
-		},
-	},
-	{
-		name: "Dr. João Costa",
-		email: "joao.vet@clinica.com",
-		password: password,
-		image:
-			"https://images.pexels.com/photos/19431271/pexels-photo-19431271.jpeg",
-		role: Role.VETERINARIO,
-		veterinario: { create: { crmv: "67890-SP", especialidade: "Cirurgia" } },
-	},
-	// Novos (x14)
-	{
-		name: "Dr. Ricardo Mendes",
-		email: "ricardo.vet@clinica.com",
-		password: password,
-		role: Role.VETERINARIO,
-		veterinario: {
-			create: { crmv: "11223-SP", especialidade: "Dermatologia" },
-		},
-	},
-	{
-		name: "Dra. Fernanda Lima",
-		email: "fernanda.vet@clinica.com",
-		password: password,
-		role: Role.VETERINARIO,
-		veterinario: {
-			create: { crmv: "33445-SP", especialidade: "Oftalmologia" },
-		},
-	},
-	{
-		name: "Dr. Roberto Campos",
-		email: "roberto.vet@clinica.com",
-		password: password,
-		role: Role.VETERINARIO,
-		veterinario: { create: { crmv: "55667-SP", especialidade: "Cardiologia" } },
-	},
-	{
-		name: "Dra. Patrícia Rocha",
-		email: "patricia.vet@clinica.com",
-		password: password,
-		role: Role.VETERINARIO,
-		veterinario: {
-			create: { crmv: "77889-SP", especialidade: "Animais Exóticos" },
-		},
-	},
-	{
-		name: "Dr. Lucas Martins",
-		email: "lucas.vet@clinica.com",
-		password: password,
-		role: Role.VETERINARIO,
-		veterinario: { create: { crmv: "99001-SP", especialidade: "Ortopedia" } },
-	},
-	{
-		name: "Dra. Juliana Alves",
-		email: "juliana.vet@clinica.com",
-		password: password,
-		role: Role.VETERINARIO,
-		veterinario: { create: { crmv: "10112-SP", especialidade: "Oncologia" } },
-	},
-	{
-		name: "Dr. Marcos Paulo",
-		email: "marcos.vet@clinica.com",
-		password: password,
-		role: Role.VETERINARIO,
-		veterinario: { create: { crmv: "13141-SP", especialidade: "Neurologia" } },
-	},
-	{
-		name: "Dra. Beatriz Souza",
-		email: "beatriz.vet@clinica.com",
-		password: password,
-		role: Role.VETERINARIO,
-		veterinario: {
-			create: { crmv: "15161-SP", especialidade: "Fisioterapia" },
-		},
-	},
-	{
-		name: "Dr. Fernando Torres",
-		email: "fernando.vet@clinica.com",
-		password: password,
-		role: Role.VETERINARIO,
-		veterinario: { create: { crmv: "17181-SP", especialidade: "Odontologia" } },
-	},
-	{
-		name: "Dra. Camila Dias",
-		email: "camila.vet@clinica.com",
-		password: password,
-		role: Role.VETERINARIO,
-		veterinario: { create: { crmv: "19202-SP", especialidade: "Nutrição" } },
-	},
-	{
-		name: "Dr. Pedro Santos",
-		email: "pedro.vet@clinica.com",
-		password: password,
-		role: Role.VETERINARIO,
-		veterinario: {
-			create: { crmv: "21222-SP", especialidade: "Clínica Geral" },
-		},
-	},
-	{
-		name: "Dra. Larissa Gomes",
-		email: "larissa.vet@clinica.com",
-		password: password,
-		role: Role.VETERINARIO,
-		veterinario: {
-			create: { crmv: "23242-SP", especialidade: "Anestesiologia" },
-		},
-	},
-	{
-		name: "Dr. André Ribeiro",
-		email: "andre.vet@clinica.com",
-		password: password,
-		role: Role.VETERINARIO,
-		veterinario: {
-			create: { crmv: "25262-SP", especialidade: "Patologia Clínica" },
-		},
-	},
-	{
-		name: "Dra. Sofia Nunes",
-		email: "sofia.vet@clinica.com",
-		password: password,
-		role: Role.VETERINARIO,
-		veterinario: {
-			create: { crmv: "27282-SP", especialidade: "Comportamento Animal" },
-		},
-	},
-]
-
-// 2. Dados de Usuários que são DONOS
-const donoUsers = (password: string): Prisma.UserCreateInput[] => [
-	// Originais
-	{
-		name: "Carlos Oliveira",
-		email: "carlos.dono@gmail.com",
-		password: password,
-		role: Role.DONO,
-		dono: {
-			create: { telefone: "11999999999", endereco: "Rua das Flores, 123" },
-		},
-	},
-	{
-		name: "Maria Souza",
-		email: "maria.dono@gmail.com",
-		password: password,
-		role: Role.DONO,
-		dono: {
-			create: { telefone: "11888888888", endereco: "Av. Paulista, 1000" },
-		},
-	},
-	// Novos (x14)
-	{
-		name: "Pedro Alcantara",
-		email: "pedro.dono@gmail.com",
-		password: password,
-		role: Role.DONO,
-		dono: { create: { telefone: "11977777777", endereco: "Rua Augusta, 500" } },
-	},
-	{
-		name: "Julia Pereira",
-		email: "julia.dono@gmail.com",
-		password: password,
-		role: Role.DONO,
-		dono: {
-			create: { telefone: "11966666666", endereco: "Rua Oscar Freire, 200" },
-		},
-	},
-	{
-		name: "Marcos Vinicius",
-		email: "marcos.dono@gmail.com",
-		password: password,
-		role: Role.DONO,
-		dono: {
-			create: { telefone: "11955555555", endereco: "Av. Faria Lima, 1500" },
-		},
-	},
-	{
-		name: "Aline Ferreira",
-		email: "aline.dono@gmail.com",
-		password: password,
-		role: Role.DONO,
-		dono: {
-			create: { telefone: "11944444444", endereco: "Rua da Consolação, 800" },
-		},
-	},
-	{
-		name: "Bruno Silva",
-		email: "bruno.dono@gmail.com",
-		password: password,
-		role: Role.DONO,
-		dono: {
-			create: { telefone: "11933333333", endereco: "Av. Rebouças, 300" },
-		},
-	},
-	{
-		name: "Carla Dias",
-		email: "carla.dono@gmail.com",
-		password: password,
-		role: Role.DONO,
-		dono: {
-			create: { telefone: "11922222222", endereco: "Rua Haddock Lobo, 400" },
-		},
-	},
-	{
-		name: "Daniela Rocha",
-		email: "daniela.dono@gmail.com",
-		password: password,
-		role: Role.DONO,
-		dono: { create: { telefone: "11911111111", endereco: "Av. Brasil, 100" } },
-	},
-	{
-		name: "Eduardo Santos",
-		email: "eduardo.dono@gmail.com",
-		password: password,
-		role: Role.DONO,
-		dono: {
-			create: { telefone: "11900000000", endereco: "Rua Estados Unidos, 50" },
-		},
-	},
-	{
-		name: "Fabiana Lima",
-		email: "fabiana.dono@gmail.com",
-		password: password,
-		role: Role.DONO,
-		dono: { create: { telefone: "11899999999", endereco: "Av. Europa, 600" } },
-	},
-	{
-		name: "Gustavo Henrique",
-		email: "gustavo.dono@gmail.com",
-		password: password,
-		role: Role.DONO,
-		dono: {
-			create: { telefone: "11877777777", endereco: "Rua Colômbia, 700" },
-		},
-	},
-	{
-		name: "Helena Costa",
-		email: "helena.dono@gmail.com",
-		password: password,
-		role: Role.DONO,
-		dono: {
-			create: { telefone: "11866666666", endereco: "Av. 9 de Julho, 2000" },
-		},
-	},
-	{
-		name: "Igor Almeida",
-		email: "igor.dono@gmail.com",
-		password: password,
-		role: Role.DONO,
-		dono: {
-			create: { telefone: "11855555555", endereco: "Rua Pamplona, 900" },
-		},
-	},
-	{
-		name: "Joana Martins",
-		email: "joana.dono@gmail.com",
-		password: password,
-		role: Role.DONO,
-		dono: {
-			create: { telefone: "11844444444", endereco: "Av. Brigadeiro, 1200" },
-		},
-	},
-	{
-		name: "Kleber Souza",
-		email: "kleber.dono@gmail.com",
-		password: password,
-		role: Role.DONO,
-		dono: {
-			create: { telefone: "11833333333", endereco: "Rua Bela Cintra, 1100" },
-		},
-	},
-]
-
-// 3. Dados dos Pets
-const pets = (): Prisma.PetCreateInput[] => [
-	// Originais
-	{ nome: "Rex", especie: "Cachorro", raca: "Labrador" },
-	{ nome: "Mimi", especie: "Gato", raca: "Siamês" },
-	{
-		nome: "Sonic",
-		especie: "Ouriço",
-		raca: "Azulis",
-		cadastro: new Date("2024-01-01"),
-	}, // Assumindo Date direto se var não existir
-	// Novos
-	{ nome: "Thor", especie: "Cachorro", raca: "Bulldog Francês" },
-	{ nome: "Luna", especie: "Cachorro", raca: "Poodle" },
-	{ nome: "Mel", especie: "Cachorro", raca: "Vira-lata" },
-	{ nome: "Simba", especie: "Gato", raca: "Persa" },
-	{ nome: "Bob", especie: "Cachorro", raca: "Golden Retriever" },
-	{ nome: "Belinha", especie: "Cachorro", raca: "Yorkshire" },
-	{ nome: "Paçoca", especie: "Hamster", raca: "Sírio" },
-	{ nome: "Nemo", especie: "Peixe", raca: "Palhaço" },
-	{ nome: "Lola", especie: "Cachorro", raca: "Beagle" },
-	{ nome: "Tom", especie: "Gato", raca: "Maine Coon" },
-	{ nome: "Chico", especie: "Ave", raca: "Calopsita" },
-	{ nome: "Nina", especie: "Gato", raca: "Angorá" },
-	{ nome: "Zeus", especie: "Cachorro", raca: "Rottweiler" },
-	{ nome: "Amora", especie: "Cachorro", raca: "Shih Tzu" },
-	{ nome: "Fred", especie: "Cachorro", raca: "Schnauzer" },
-	{ nome: "Lua", especie: "Gato", raca: "SRD" },
-	{ nome: "Bidu", especie: "Cachorro", raca: "Schnauzer" },
-	{ nome: "Mingau", especie: "Gato", raca: "Siamês" },
-	{ nome: "Pingo", especie: "Cachorro", raca: "Chihuahua" },
-	{ nome: "Jujuba", especie: "Coelho", raca: "Cabeça de Leão" },
-	{ nome: "Floquinho", especie: "Cachorro", raca: "Maltês" },
-	{ nome: "Sasha", especie: "Cachorro", raca: "Husky Siberiano" },
-	{ nome: "Garfield", especie: "Gato", raca: "Exótico" },
-]
-
-// 4. Dados de Produtos (com referência ao email do veterinário)
-const produtos = () => [
-	// Original
-	{
-		nome: "Vacina V10",
-		preco: 50.0,
-		estoque: 100,
-		veterinarioEmail: "ana.vet@clinica.com",
-	},
-	// Novos
-	{
-		nome: "Vacina Antirrábica",
-		preco: 45.0,
-		estoque: 150,
-		veterinarioEmail: "ana.vet@clinica.com",
-	},
-	{
-		nome: "Bravecto 10-20kg",
-		preco: 220.0,
-		estoque: 50,
-		veterinarioEmail: "ricardo.vet@clinica.com",
-	},
-	{
-		nome: "Ração Royal Canin 10kg",
-		preco: 350.0,
-		estoque: 20,
-		veterinarioEmail: "camila.vet@clinica.com",
-	}, // Nutricionista
-	{
-		nome: "Consulta Dermatológica",
-		preco: 150.0,
-		estoque: 999,
-		veterinarioEmail: "ricardo.vet@clinica.com",
-	},
-	{
-		nome: "Limpeza de Tártaro",
-		preco: 400.0,
-		estoque: 999,
-		veterinarioEmail: "fernando.vet@clinica.com",
-	}, // Odontologista
-	{
-		nome: "Shampoo Hipoalergênico",
-		preco: 85.0,
-		estoque: 30,
-		veterinarioEmail: "ricardo.vet@clinica.com",
-	},
-	{
-		nome: "Coleira Antipulgas",
-		preco: 120.0,
-		estoque: 60,
-		veterinarioEmail: "ana.vet@clinica.com",
-	},
-	{
-		nome: "Vermífugo Plus",
-		preco: 35.0,
-		estoque: 200,
-		veterinarioEmail: "joao.vet@clinica.com",
-	},
-	{
-		nome: "Cirurgia de Castração",
-		preco: 600.0,
-		estoque: 999,
-		veterinarioEmail: "joao.vet@clinica.com",
-	},
-	{
-		nome: "Sessão de Fisioterapia",
-		preco: 100.0,
-		estoque: 999,
-		veterinarioEmail: "beatriz.vet@clinica.com",
-	},
-]
-
-// 5. Dados de Vínculos Pet-Dono
-// Nota: Os nomes dos Pets e emails dos Donos devem existir nas listas acima
-const vinculos = () => [
-	// Originais
-	{ donoEmail: "carlos.dono@gmail.com", petNome: "Rex", ativo: true },
-	{ donoEmail: "maria.dono@gmail.com", petNome: "Mimi", ativo: true },
-	// Novos (Distribuindo os novos pets para os novos donos)
-	{ donoEmail: "carlos.dono@gmail.com", petNome: "Sonic", ativo: true }, // Carlos tem um ouriço também
-	{ donoEmail: "pedro.dono@gmail.com", petNome: "Thor", ativo: true },
-	{ donoEmail: "julia.dono@gmail.com", petNome: "Luna", ativo: true },
-	{ donoEmail: "marcos.dono@gmail.com", petNome: "Mel", ativo: true },
-	{ donoEmail: "aline.dono@gmail.com", petNome: "Simba", ativo: true },
-	{ donoEmail: "bruno.dono@gmail.com", petNome: "Bob", ativo: true },
-	{ donoEmail: "carla.dono@gmail.com", petNome: "Belinha", ativo: true },
-	{ donoEmail: "daniela.dono@gmail.com", petNome: "Paçoca", ativo: true },
-	{ donoEmail: "eduardo.dono@gmail.com", petNome: "Nemo", ativo: true },
-	{ donoEmail: "fabiana.dono@gmail.com", petNome: "Lola", ativo: true },
-	{ donoEmail: "gustavo.dono@gmail.com", petNome: "Tom", ativo: true },
-	{ donoEmail: "helena.dono@gmail.com", petNome: "Chico", ativo: true },
-	{ donoEmail: "igor.dono@gmail.com", petNome: "Nina", ativo: true },
-	{ donoEmail: "joana.dono@gmail.com", petNome: "Zeus", ativo: true },
-	{ donoEmail: "kleber.dono@gmail.com", petNome: "Amora", ativo: true },
-	{ donoEmail: "pedro.dono@gmail.com", petNome: "Fred", ativo: true }, // Pedro tem 2
-	{ donoEmail: "julia.dono@gmail.com", petNome: "Lua", ativo: true }, // Julia tem 2
-	{ donoEmail: "marcos.dono@gmail.com", petNome: "Bidu", ativo: true },
-	{ donoEmail: "aline.dono@gmail.com", petNome: "Mingau", ativo: true },
-	{ donoEmail: "bruno.dono@gmail.com", petNome: "Pingo", ativo: true },
-	{ donoEmail: "carla.dono@gmail.com", petNome: "Jujuba", ativo: true },
-	{ donoEmail: "daniela.dono@gmail.com", petNome: "Floquinho", ativo: true },
-	{ donoEmail: "eduardo.dono@gmail.com", petNome: "Sasha", ativo: true },
-	{ donoEmail: "fabiana.dono@gmail.com", petNome: "Garfield", ativo: true },
-]
-
-// 6. Dados de Agendamentos
-const agendamentos = () => [
-	// Original (Index 0)
-	{
-		datahora: new Date(),
-		status: Status.CONCLUIDO,
-		donoEmail: "carlos.dono@gmail.com",
-		petNome: "Rex",
-		descricao: "Meu cachorro comeu nutela",
-	},
-	// Novos
-	// Index 1
-	{
-		datahora: new Date(new Date().setDate(new Date().getDate() + 1)), // Amanhã
-		status: Status.PENDENTE,
-		donoEmail: "pedro.dono@gmail.com",
-		petNome: "Thor",
-		descricao: "Vacinação anual",
-	},
-	// Index 2
-	{
-		datahora: new Date(new Date().setDate(new Date().getDate() - 5)), // 5 dias atrás
-		status: Status.CONCLUIDO,
-		donoEmail: "julia.dono@gmail.com",
-		petNome: "Luna",
-		descricao: "Tosse seca e falta de apetite",
-	},
-	// Index 3
-	{
-		datahora: new Date(new Date().setDate(new Date().getDate() + 2)),
-		status: Status.PENDENTE,
-		donoEmail: "marcos.dono@gmail.com",
-		petNome: "Mel",
-		descricao: "Avaliação para castração",
-	},
-	// Index 4
-	{
-		datahora: new Date(new Date().setDate(new Date().getDate() - 10)),
-		status: Status.CONCLUIDO,
-		donoEmail: "aline.dono@gmail.com",
-		petNome: "Simba",
-		descricao: "Check-up geral",
-	},
-	// Index 5
-	{
-		datahora: new Date(new Date().setDate(new Date().getDate() + 7)),
-		status: Status.PENDENTE,
-		donoEmail: "bruno.dono@gmail.com",
-		petNome: "Bob",
-		descricao: "Dores na pata traseira",
-	},
-	// Index 6
-	{
-		datahora: new Date(),
-		status: Status.PENDENTE,
-		donoEmail: "carla.dono@gmail.com",
-		petNome: "Belinha",
-		descricao: "Banho e tosa (Estética)",
-	},
-	// Index 7
-	{
-		datahora: new Date(new Date().setDate(new Date().getDate() - 2)),
-		status: Status.CONCLUIDO,
-		donoEmail: "daniela.dono@gmail.com",
-		petNome: "Paçoca",
-		descricao: "Queda de pelos excessiva",
-	},
-	// Index 8
-	{
-		datahora: new Date(new Date().setDate(new Date().getDate() + 3)),
-		status: Status.PENDENTE,
-		donoEmail: "eduardo.dono@gmail.com",
-		petNome: "Sasha",
-		descricao: "Olhos vermelhos e secreção",
-	},
-]
-
-// 7. Dados de Consultas (referenciando agendamento por índice do array acima)
-const consultas = () => [
-	// Original (Linkado ao Index 0)
-	{
-		diagnostico: "Tudo certo com o Rex. Foi apenas um susto.",
-		agendamentoIndex: 0,
-		veterinarioEmail: "ana.vet@clinica.com",
-	},
-	// Novos
-	// Linkado ao Index 2 (Luna - Tosse)
-	{
-		diagnostico: "Gripe canina. Receitado antibiótico e repouso.",
-		agendamentoIndex: 2,
-		veterinarioEmail: "ana.vet@clinica.com",
-	},
-	// Linkado ao Index 4 (Simba - Checkup)
-	{
-		diagnostico: "Saúde perfeita. Exames de sangue normais.",
-		agendamentoIndex: 4,
-		veterinarioEmail: "pedro.vet@clinica.com",
-	},
-	// Linkado ao Index 7 (Paçoca - Queda de pelos)
-	{
-		diagnostico: "Dermatite fúngica. Receitado pomada antifúngica.",
-		agendamentoIndex: 7,
-		veterinarioEmail: "ricardo.vet@clinica.com", // Dermatologista
-	},
-	// Note: Agendamentos pendentes geralmente não têm consultas fechadas ainda,
-	// mas adicionei diagnósticos para os que estão marcados como CONCLUIDO acima.
-]
-
-// 8. Dados de Fatos Financeiros
-const fatosFinanceiros = () => [
-	// Original
-	{
-		tipo: "RECEITA",
-		valor: 50.0,
-		descricao: "Venda Vacina V10",
-		produtoNome: "Vacina V10",
-	},
-	// Novos
-	{
-		tipo: "RECEITA",
-		valor: 220.0,
-		descricao: "Venda Bravecto",
-		produtoNome: "Bravecto 10-20kg",
-	},
-	{
-		tipo: "RECEITA",
-		valor: 150.0,
-		descricao: "Consulta Dermatológica Paçoca",
-		produtoNome: "Consulta Dermatológica",
-	},
-	{
-		tipo: "RECEITA",
-		valor: 350.0,
-		descricao: "Venda Ração Royal Canin",
-		produtoNome: "Ração Royal Canin 10kg",
-	},
-	{
-		tipo: "RECEITA",
-		valor: 85.0,
-		descricao: "Venda Shampoo Hipoalergênico",
-		produtoNome: "Shampoo Hipoalergênico",
-	},
-	{
-		tipo: "RECEITA",
-		valor: 600.0,
-		descricao: "Cirurgia Castração Mel (Pagamento Antecipado)",
-		produtoNome: "Cirurgia de Castração",
-	},
-	{
-		tipo: "RECEITA",
-		valor: 35.0,
-		descricao: "Venda Vermífugo",
-		produtoNome: "Vermífugo Plus",
-	},
-	{
-		tipo: "DESPESA", // Exemplo de saída se sua lógica permitir, ou apenas receita de venda
-		valor: -200.0,
-		descricao: "Compra de insumos cirúrgicos",
-		produtoNome: null, // Sem produto vinculado
-	},
-	{
-		tipo: "RECEITA",
-		valor: 120.0,
-		descricao: "Venda Coleira Antipulgas",
-		produtoNome: "Coleira Antipulgas",
-	},
-]
-
-export async function main() {
-	console.log("Iniciando a seed...")
-	let qtddDados = 0
-
-	// Configuração de senha
-	const salt = genSaltSync(10)
-	const hash = hashSync("wrl12345@@", salt)
-
-	// --- CRIAÇÃO DE USUÁRIOS VETERINÁRIOS ---
-	console.log("\n📋 Criando Veterinários...")
-	const vetsData = vetUsers(hash)
-	for (let i = 0; i < vetsData.length; i++) {
-		const u = vetsData[i]
-		const user = await prisma.user.upsert({
-			where: { email: u.email },
-			update: {},
-			create: u,
-		})
-
-		if (!user) {
-			console.error(`❌ Falha ao criar vet user ${u.name}`)
-		} else {
-			console.log(
-				`✅ [${i + 1}/${vetsData.length}] User Vet ${user.name} verificado/criado`,
-			)
-			qtddDados++
-		}
-	}
-
-	// --- CRIAÇÃO DE USUÁRIOS DONOS ---
-	console.log("\n📋 Criando Donos...")
-	const donosData = donoUsers(hash)
-	for (let i = 0; i < donosData.length; i++) {
-		const u = donosData[i]
-		const user = await prisma.user.upsert({
-			where: { email: u.email },
-			update: {},
-			create: u,
-		})
-
-		if (!user) {
-			console.error(`❌ Falha ao criar dono user ${u.name}`)
-		} else {
-			console.log(
-				`✅ [${i + 1}/${donosData.length}] User Dono ${user.name} verificado/criado`,
-			)
-			qtddDados++
-		}
-	}
-
-	// --- CRIAÇÃO DE PETS ---
-	console.log("\n📋 Criando Pets...")
-	const petsData = pets()
-	for (let i = 0; i < petsData.length; i++) {
-		const p = petsData[i]
-		const pet = await prisma.pet.create({
-			data: p,
-		})
-
-		if (!pet) {
-			console.error(`❌ Falha ao criar pet ${p.nome}`)
-		} else {
-			console.log(`✅ [${i + 1}/${petsData.length}] Pet ${pet.nome} criado`)
-			qtddDados++
-		}
-	}
-
-	// --- CRIAÇÃO DE PRODUTOS ---
-	console.log("\n📋 Criando Produtos...")
-	const produtosData = produtos()
-	for (let i = 0; i < produtosData.length; i++) {
-		const p = produtosData[i]
-		const perfilVet = await prisma.veterinario.findFirst({
-			where: { user: { email: p.veterinarioEmail } },
-		})
-
-		if (!perfilVet) {
-			console.error(`❌ Veterinário ${p.veterinarioEmail} não encontrado`)
-			continue
-		}
-
-		const produto = await prisma.produto.create({
-			data: {
-				nome: p.nome,
-				preco: p.preco,
-				estoque: p.estoque,
-				veterinarioId: perfilVet.id,
-			},
-		})
-
-		console.log(
-			`✅ [${i + 1}/${produtosData.length}] Produto ${produto.nome} criado`,
-		)
-		qtddDados++
-	}
-
-	// --- CRIAÇÃO DE VÍNCULOS PERTENCE ---
-	console.log("\n📋 Criando Vínculos Pet-Dono...")
-	const vinculosData = vinculos()
-	for (let i = 0; i < vinculosData.length; i++) {
-		const v = vinculosData[i]
-		const perfilDono = await prisma.dono.findFirst({
-			where: { user: { email: v.donoEmail } },
-		})
-		const pet = await prisma.pet.findFirst({
-			where: { nome: v.petNome },
-		})
-
-		if (!perfilDono || !pet) {
-			console.error(`❌ Dono ${v.donoEmail} ou Pet ${v.petNome} não encontrado`)
-			continue
-		}
-
-		// Verifica se já existe o vínculo
-		const vinculoExistente = await prisma.pertence.findFirst({
-			where: {
-				donoId: perfilDono.id,
-				petId: pet.id,
-			},
-		})
-
-		if (!vinculoExistente) {
-			await prisma.pertence.create({
-				data: {
-					donoId: perfilDono.id,
-					petId: pet.id,
-					ativo: v.ativo,
-				},
-			})
-			console.log(
-				`✅ [${i + 1}/${vinculosData.length}] Vínculo ${v.donoEmail} ↔ ${v.petNome} criado`,
-			)
-			qtddDados++
-		} else {
-			console.log(
-				`⏭️  [${i + 1}/${vinculosData.length}] Vínculo ${v.donoEmail} ↔ ${v.petNome} já existe`,
-			)
-		}
-	}
-
-	// --- CRIAÇÃO DE AGENDAMENTOS ---
-	console.log("\n📋 Criando Agendamentos...")
-	const agendamentosData = agendamentos()
-	const agendamentosCriados = []
-
-	for (let i = 0; i < agendamentosData.length; i++) {
-		const a = agendamentosData[i]
-		const perfilDono = await prisma.dono.findFirst({
-			where: { user: { email: a.donoEmail } },
-		})
-		const pet = await prisma.pet.findFirst({
-			where: { nome: a.petNome },
-		})
-
-		if (!perfilDono || !pet) {
-			console.error(`❌ Dono ${a.donoEmail} ou Pet ${a.petNome} não encontrado`)
-			continue
-		}
-
-		const agendamento = await prisma.agendamento.create({
-			data: {
-				datahora: a.datahora,
-				status: a.status,
-				donoId: perfilDono.id,
-				petId: pet.id,
-				descricao: a.descricao,
-			},
-		})
-
-		agendamentosCriados.push(agendamento)
-		console.log(`✅ [${i + 1}/${agendamentosData.length}] Agendamento criado`)
-		qtddDados++
-	}
-
-	// --- CRIAÇÃO DE CONSULTAS ---
-	console.log("\n📋 Criando Consultas...")
-	const consultasData = consultas()
-	for (let i = 0; i < consultasData.length; i++) {
-		const c = consultasData[i]
-		const perfilVet = await prisma.veterinario.findFirst({
-			where: { user: { email: c.veterinarioEmail } },
-		})
-
-		if (!perfilVet) {
-			console.error(`❌ Veterinário ${c.veterinarioEmail} não encontrado`)
-			continue
-		}
-
-		const agendamento = agendamentosCriados[c.agendamentoIndex]
-		if (!agendamento) {
-			console.error(
-				`❌ Agendamento índice ${c.agendamentoIndex} não encontrado`,
-			)
-			continue
-		}
-
-		await prisma.consulta.create({
-			data: {
-				diagnostico: c.diagnostico,
-				agendamentoId: agendamento.id,
-				veterinarioId: perfilVet.id,
-			},
-		})
-
-		console.log(`✅ [${i + 1}/${consultasData.length}] Consulta criada`)
-		qtddDados++
-	}
-
-	// --- CRIAÇÃO DE FATOS FINANCEIROS ---
-	console.log("\n📋 Criando Fatos Financeiros...")
-	const fatosData = fatosFinanceiros()
-	for (let i = 0; i < fatosData.length; i++) {
-		const f = fatosData[i]
-
-		if (!f.produtoNome) {
-			console.error(`❌ Produto ${f.produtoNome} não encontrado`)
-			continue
-		}
-
-		const produto = await prisma.produto.findFirst({
-			where: { nome: f.produtoNome },
-		})
-
-		if (!produto) {
-			console.error(`❌ Produto ${f.produtoNome} não encontrado`)
-			continue
-		}
-
-		await prisma.fatosFinanceiros.create({
-			data: {
-				tipo: f.tipo,
-				valor: f.valor,
-				descricao: f.descricao,
-				produtoId: produto.id,
-			},
-		})
-
-		console.log(`✅ [${i + 1}/${fatosData.length}] Fato Financeiro criado`)
-		qtddDados++
-	}
-
-	console.log(
-		`\n🎉 Seed concluída com ${qtddDados} registros principais processados.`,
+function randomDate(start: Date, end: Date): Date {
+	return new Date(
+		start.getTime() + Math.random() * (end.getTime() - start.getTime()),
 	)
 }
+
+function daysAgo(days: number): Date {
+	const date = new Date()
+	date.setDate(date.getDate() - days)
+	return date
+}
+
+function daysFromNow(days: number): Date {
+	const date = new Date()
+	date.setDate(date.getDate() + days)
+	return date
+}
+
+// ==================== DADOS ====================
+
+const users: Prisma.UserCreateInput[] = [
+	{
+		email: "admin@petclinic.com",
+		name: "Administrador",
+		password: "", // Será hasheado
+		role: Role.ADMIN,
+	},
+	{
+		email: "joao.silva@email.com",
+		name: "João Silva",
+		password: "", // Será hasheado
+		role: Role.DONO,
+		dono: {
+			create: {
+				telefone: "(11) 98765-4321",
+				endereco: "Rua das Flores, 123 - São Paulo, SP",
+			},
+		},
+	},
+	{
+		email: "maria.santos@email.com",
+		name: "Maria Santos",
+		password: "", // Será hasheado
+		role: Role.DONO,
+		dono: {
+			create: {
+				telefone: "(11) 97654-3210",
+				endereco: "Av. Paulista, 1000 - São Paulo, SP",
+			},
+		},
+	},
+	{
+		email: "carlos.oliveira@email.com",
+		name: "Carlos Oliveira",
+		password: "", // Será hasheado
+		role: Role.DONO,
+		dono: {
+			create: {
+				telefone: "(11) 96543-2109",
+				endereco: "Rua Augusta, 456 - São Paulo, SP",
+			},
+		},
+	},
+	{
+		email: "ana.ferreira@email.com",
+		name: "Ana Ferreira",
+		password: "", // Será hasheado
+		role: Role.DONO,
+		dono: {
+			create: {
+				telefone: "(11) 95432-1098",
+				endereco: "Rua Oscar Freire, 789 - São Paulo, SP",
+			},
+		},
+	},
+	{
+		email: "dra.ana.costa@petclinic.com",
+		name: "Dra. Ana Costa",
+		password: "", // Será hasheado
+		role: Role.VETERINARIO,
+		veterinario: {
+			create: {
+				crmv: "SP-12345",
+				especialidade: "Clínica Geral",
+			},
+		},
+	},
+	{
+		email: "dr.pedro.lima@petclinic.com",
+		name: "Dr. Pedro Lima",
+		password: "", // Será hasheado
+		role: Role.VETERINARIO,
+		veterinario: {
+			create: {
+				crmv: "SP-54321",
+				especialidade: "Cirurgia",
+			},
+		},
+	},
+	{
+		email: "dra.julia.mendes@petclinic.com",
+		name: "Dra. Júlia Mendes",
+		password: "", // Será hasheado
+		role: Role.VETERINARIO,
+		veterinario: {
+			create: {
+				crmv: "SP-67890",
+				especialidade: "Dermatologia",
+			},
+		},
+	},
+]
+
+const pets: Prisma.PetCreateInput[] = [
+	{
+		nome: "Rex",
+		especie: "Cachorro",
+		raca: "Labrador",
+		nascimento: new Date("2020-03-15"),
+		cadastro: daysAgo(180),
+	},
+	{
+		nome: "Mimi",
+		especie: "Gato",
+		raca: "Siamês",
+		nascimento: new Date("2021-07-22"),
+		cadastro: daysAgo(120),
+	},
+	{
+		nome: "Bob",
+		especie: "Cachorro",
+		raca: "Golden Retriever",
+		nascimento: new Date("2019-11-10"),
+		cadastro: daysAgo(250),
+	},
+	{
+		nome: "Luna",
+		especie: "Gato",
+		raca: "Persa",
+		nascimento: new Date("2022-01-05"),
+		cadastro: daysAgo(90),
+	},
+	{
+		nome: "Thor",
+		especie: "Cachorro",
+		raca: "Pastor Alemão",
+		nascimento: new Date("2021-05-18"),
+		cadastro: daysAgo(150),
+	},
+	{
+		nome: "Mel",
+		especie: "Gato",
+		raca: "Vira-lata",
+		nascimento: new Date("2020-09-30"),
+		cadastro: daysAgo(200),
+	},
+	{
+		nome: "Toby",
+		especie: "Cachorro",
+		raca: "Poodle",
+		nascimento: new Date("2023-02-14"),
+		cadastro: daysAgo(60),
+	},
+	{
+		nome: "Nina",
+		especie: "Gato",
+		raca: "Maine Coon",
+		nascimento: new Date("2022-08-20"),
+		cadastro: daysAgo(100),
+	},
+]
+
+const produtos: Omit<Prisma.ProdutoCreateInput, "veterinario">[] = [
+	{
+		nome: "Ração Premium Adulto",
+		preco: new Prisma.Decimal(89.9),
+		estoque: 50,
+	},
+	{
+		nome: "Vacina V10",
+		preco: new Prisma.Decimal(120.0),
+		estoque: 30,
+	},
+	{
+		nome: "Antipulgas",
+		preco: new Prisma.Decimal(45.5),
+		estoque: 100,
+	},
+	{
+		nome: "Vermífugo",
+		preco: new Prisma.Decimal(35.0),
+		estoque: 80,
+	},
+	{
+		nome: "Shampoo Medicinal",
+		preco: new Prisma.Decimal(55.0),
+		estoque: 40,
+	},
+	{
+		nome: "Coleira Antiparasitária",
+		preco: new Prisma.Decimal(78.9),
+		estoque: 25,
+	},
+	{
+		nome: "Ração Filhote",
+		preco: new Prisma.Decimal(95.0),
+		estoque: 35,
+	},
+	{
+		nome: "Vacina Antirrábica",
+		preco: new Prisma.Decimal(80.0),
+		estoque: 45,
+	},
+	{
+		nome: "Suplemento Vitamínico",
+		preco: new Prisma.Decimal(62.5),
+		estoque: 60,
+	},
+	{
+		nome: "Pomada Cicatrizante",
+		preco: new Prisma.Decimal(38.0),
+		estoque: 70,
+	},
+]
+
+const despesas: Prisma.DespesasCreateInput[] = [
+	{
+		tipoPatrimonial: "PASSIVO_CIRCULANTE",
+		tipoResultado: "DESPESAS_OPERACIONAIS",
+		valor: new Prisma.Decimal(5000.0),
+		descricao: "Aluguel mensal da clínica",
+		dataInicio: new Date("2024-01-01"),
+		dataRegistro: new Date("2024-01-01"),
+	},
+	{
+		tipoPatrimonial: "PASSIVO_CIRCULANTE",
+		tipoResultado: "DESPESAS_OPERACIONAIS",
+		valor: new Prisma.Decimal(850.0),
+		descricao: "Conta de energia elétrica - Janeiro",
+		dataInicio: new Date("2024-01-01"),
+		dataFim: new Date("2024-01-31"),
+		dataRegistro: new Date("2024-01-05"),
+	},
+	{
+		tipoPatrimonial: "ATIVO_CIRCULANTE",
+		tipoResultado: "DESPESAS_OPERACIONAIS",
+		valor: new Prisma.Decimal(1500.0),
+		descricao: "Compra de materiais cirúrgicos",
+		dataInicio: new Date("2024-01-15"),
+		dataFim: new Date("2024-01-15"),
+		dataRegistro: new Date("2024-01-15"),
+	},
+	{
+		tipoPatrimonial: "ATIVO_PERMANENTE",
+		tipoResultado: "DESPESAS_OPERACIONAIS",
+		valor: new Prisma.Decimal(2200.0),
+		descricao: "Compra de equipamentos médicos",
+		dataInicio: new Date("2024-02-20"),
+		dataFim: new Date("2024-02-20"),
+		dataRegistro: new Date("2024-02-20"),
+	},
+	{
+		tipoPatrimonial: "PASSIVO_CIRCULANTE",
+		tipoResultado: "DESPESAS_OPERACIONAIS",
+		valor: new Prisma.Decimal(15000.0),
+		descricao: "Folha de pagamento - Janeiro",
+		dataInicio: new Date("2024-01-01"),
+		dataFim: new Date("2024-01-31"),
+		dataRegistro: new Date("2024-01-25"),
+	},
+]
+
+// ==================== FUNÇÕES DE SEED ====================
+
+async function seedUsers() {
+	console.log("🌱 Criando usuários...")
+
+	const hashedPassword = await hash("Senha@123", 10)
+
+	for (const userData of users) {
+		await prisma.user.create({
+			data: {
+				...userData,
+				password: hashedPassword,
+			},
+		})
+	}
+
+	console.log(`✅ ${users.length} usuários criados`)
+}
+
+async function seedPets() {
+	console.log("🌱 Criando pets e relacionamentos com donos...")
+
+	const donos = await prisma.dono.findMany({
+		include: { user: true },
+	})
+
+	for (let i = 0; i < pets.length; i++) {
+		const dono = donos[i % donos.length]
+
+		await prisma.pet.create({
+			data: {
+				...pets[i],
+				pertence: {
+					create: {
+						donoId: dono.id,
+						ativo: true,
+						criadoEm: pets[i].cadastro || new Date(),
+					},
+				},
+			},
+		})
+	}
+
+	console.log(`✅ ${pets.length} pets criados`)
+}
+
+async function seedProdutos() {
+	console.log("🌱 Criando produtos...")
+
+	const veterinarios = await prisma.veterinario.findMany({
+		include: { user: true },
+	})
+
+	for (let i = 0; i < produtos.length; i++) {
+		const vet = veterinarios[i % veterinarios.length]
+
+		await prisma.produto.create({
+			data: {
+				...produtos[i],
+				veterinario: {
+					connect: { id: vet.id },
+				},
+			},
+		})
+	}
+
+	console.log(`✅ ${produtos.length} produtos criados`)
+}
+
+async function seedDespesas() {
+	console.log("🌱 Criando despesas...")
+
+	for (const despesaData of despesas) {
+		await prisma.despesas.create({
+			data: despesaData,
+		})
+	}
+
+	console.log(`✅ ${despesas.length} despesas criadas`)
+}
+
+async function seedAgendamentos() {
+	console.log("🌱 Criando agendamentos...")
+
+	const donos = await prisma.dono.findMany({
+		include: { user: true },
+	})
+	const pets = await prisma.pet.findMany()
+	const veterinarios = await prisma.veterinario.findMany({
+		include: { user: true },
+	})
+
+	const agendamentosData: Prisma.AgendamentoCreateInput[] = [
+		// Agendamentos concluídos - mês passado
+		{
+			datahora: daysAgo(45),
+			status: Status.CONCLUIDO,
+			descricao: "Consulta de rotina e aplicação de vacina V10",
+			dono: { connect: { id: donos[0].id } },
+			pet: { connect: { id: pets[0].id } },
+			consulta: {
+				create: {
+					diagnostico:
+						"Animal saudável, sem alterações detectadas. Vacinação em dia.",
+					observacoes: "Aplicada vacina V10. Retornar em 1 ano para reforço.",
+					tipo: TipoConsulta.VACINACAO,
+					veterinario: { connect: { id: veterinarios[0].id } },
+				},
+			},
+			fatos: {
+				create: [
+					{
+						tipoPatrimonial: "ATIVO_CIRCULANTE",
+						tipoResultado: "RECEITAS_OPERACIONAIS",
+						valor: new Prisma.Decimal(150.0),
+						descricao: "Consulta veterinária",
+						data: daysAgo(45),
+					},
+					{
+						tipoPatrimonial: "ATIVO_CIRCULANTE",
+						tipoResultado: "RECEITAS_OPERACIONAIS",
+						valor: new Prisma.Decimal(120.0),
+						descricao: "Vacina V10",
+						data: daysAgo(45),
+					},
+				],
+			},
+		},
+		{
+			datahora: daysAgo(38),
+			status: Status.CONCLUIDO,
+			descricao: "Consulta dermatológica - coceira excessiva",
+			dono: { connect: { id: donos[1].id } },
+			pet: { connect: { id: pets[1].id } },
+			consulta: {
+				create: {
+					diagnostico: "Dermatite alérgica causada por pulgas",
+					observacoes:
+						"Prescrito shampoo medicinal e antipulgas. Retornar em 15 dias para avaliação.",
+					tipo: TipoConsulta.CONSULTA,
+					veterinario: { connect: { id: veterinarios[2].id } },
+				},
+			},
+			fatos: {
+				create: [
+					{
+						tipoPatrimonial: "ATIVO_CIRCULANTE",
+						tipoResultado: "RECEITAS_OPERACIONAIS",
+						valor: new Prisma.Decimal(180.0),
+						descricao: "Consulta especializada - Dermatologia",
+						data: daysAgo(38),
+					},
+					{
+						tipoPatrimonial: "ATIVO_CIRCULANTE",
+						tipoResultado: "RECEITAS_OPERACIONAIS",
+						valor: new Prisma.Decimal(45.5),
+						descricao: "Antipulgas",
+						data: daysAgo(38),
+					},
+				],
+			},
+		},
+		{
+			datahora: daysAgo(30),
+			status: Status.CONCLUIDO,
+			descricao: "Cirurgia de castração",
+			dono: { connect: { id: donos[2].id } },
+			pet: { connect: { id: pets[4].id } },
+			consulta: {
+				create: {
+					diagnostico:
+						"Procedimento cirúrgico de orquiectomia realizado com sucesso",
+					observacoes:
+						"Repouso absoluto por 7 dias. Retornar para retirada de pontos em 10 dias.",
+					tipo: TipoConsulta.CIRURGIA,
+					veterinario: { connect: { id: veterinarios[1].id } },
+				},
+			},
+			fatos: {
+				create: [
+					{
+						tipoPatrimonial: "ATIVO_CIRCULANTE",
+						tipoResultado: "RECEITAS_OPERACIONAIS",
+						valor: new Prisma.Decimal(450.0),
+						descricao: "Cirurgia de castração",
+						data: daysAgo(30),
+					},
+				],
+			},
+		},
+		{
+			datahora: daysAgo(25),
+			status: Status.CONCLUIDO,
+			descricao: "Retorno - Avaliação pós-cirúrgica",
+			dono: { connect: { id: donos[2].id } },
+			pet: { connect: { id: pets[4].id } },
+			consulta: {
+				create: {
+					diagnostico: "Cicatrização adequada, sem sinais de infecção",
+					observacoes:
+						"Pontos removidos com sucesso. Animal liberado para atividades normais.",
+					tipo: TipoConsulta.RETORNO,
+					veterinario: { connect: { id: veterinarios[1].id } },
+				},
+			},
+		},
+		{
+			datahora: daysAgo(20),
+			status: Status.CONCLUIDO,
+			descricao: "Retorno dermatológico - reavaliação",
+			dono: { connect: { id: donos[1].id } },
+			pet: { connect: { id: pets[1].id } },
+			consulta: {
+				create: {
+					diagnostico: "Melhora significativa do quadro dermatológico",
+					observacoes:
+						"Continuar tratamento por mais 15 dias. Próximo retorno agendado.",
+					tipo: TipoConsulta.RETORNO,
+					veterinario: { connect: { id: veterinarios[2].id } },
+				},
+			},
+		},
+		{
+			datahora: daysAgo(15),
+			status: Status.CONCLUIDO,
+			descricao: "Exames laboratoriais - check-up anual",
+			dono: { connect: { id: donos[3].id } },
+			pet: { connect: { id: pets[2].id } },
+			consulta: {
+				create: {
+					diagnostico: "Hemograma e bioquímica dentro dos padrões normais",
+					observacoes:
+						"Animal saudável. Manter rotina de exercícios e alimentação adequada.",
+					tipo: TipoConsulta.EXAMES,
+					veterinario: { connect: { id: veterinarios[0].id } },
+				},
+			},
+			fatos: {
+				create: [
+					{
+						tipoPatrimonial: "ATIVO_CIRCULANTE",
+						tipoResultado: "RECEITAS_OPERACIONAIS",
+						valor: new Prisma.Decimal(280.0),
+						descricao: "Exames laboratoriais completos",
+						data: daysAgo(15),
+					},
+				],
+			},
+		},
+		{
+			datahora: daysAgo(10),
+			status: Status.CONCLUIDO,
+			descricao: "Atendimento emergencial - vômitos",
+			dono: { connect: { id: donos[0].id } },
+			pet: { connect: { id: pets[0].id } },
+			consulta: {
+				create: {
+					diagnostico: "Gastroenterite aguda",
+					observacoes:
+						"Administrado antiemético e protetor gástrico. Dieta leve por 3 dias.",
+					tipo: TipoConsulta.EMERGENCIA,
+					veterinario: { connect: { id: veterinarios[0].id } },
+				},
+			},
+			fatos: {
+				create: [
+					{
+						tipoPatrimonial: "ATIVO_CIRCULANTE",
+						tipoResultado: "RECEITAS_OPERACIONAIS",
+						valor: new Prisma.Decimal(350.0),
+						descricao: "Atendimento emergencial",
+						data: daysAgo(10),
+					},
+				],
+			},
+		},
+		{
+			datahora: daysAgo(5),
+			status: Status.CONCLUIDO,
+			descricao: "Banho e tosa higiênica",
+			dono: { connect: { id: donos[3].id } },
+			pet: { connect: { id: pets[6].id } },
+			fatos: {
+				create: [
+					{
+						tipoPatrimonial: "ATIVO_CIRCULANTE",
+						tipoResultado: "RECEITAS_OPERACIONAIS",
+						valor: new Prisma.Decimal(80.0),
+						descricao: "Banho e tosa",
+						data: daysAgo(5),
+					},
+				],
+			},
+		},
+		// Agendamentos pendentes - futuros
+		{
+			datahora: daysFromNow(2),
+			status: Status.PENDENTE,
+			descricao: "Consulta de rotina e check-up geral",
+			dono: { connect: { id: donos[1].id } },
+			pet: { connect: { id: pets[3].id } },
+		},
+		{
+			datahora: daysFromNow(5),
+			status: Status.PENDENTE,
+			descricao: "Aplicação de vacina antirrábica",
+			dono: { connect: { id: donos[2].id } },
+			pet: { connect: { id: pets[2].id } },
+		},
+		{
+			datahora: daysFromNow(7),
+			status: Status.PENDENTE,
+			descricao: "Banho e tosa",
+			dono: { connect: { id: donos[0].id } },
+			pet: { connect: { id: pets[0].id } },
+		},
+		{
+			datahora: daysFromNow(10),
+			status: Status.PENDENTE,
+			descricao: "Aplicação de vermífugo",
+			dono: { connect: { id: donos[3].id } },
+			pet: { connect: { id: pets[7].id } },
+		},
+		{
+			datahora: daysFromNow(12),
+			status: Status.PENDENTE,
+			descricao: "Consulta dermatológica - manchas na pele",
+			dono: { connect: { id: donos[1].id } },
+			pet: { connect: { id: pets[5].id } },
+		},
+		{
+			datahora: daysFromNow(15),
+			status: Status.PENDENTE,
+			descricao: "Avaliação pré-cirúrgica",
+			dono: { connect: { id: donos[3].id } },
+			pet: { connect: { id: pets[6].id } },
+		},
+		// Agendamento cancelado
+		{
+			datahora: daysAgo(3),
+			status: Status.CANCELADO,
+			descricao: "Consulta de rotina - CANCELADA pelo cliente",
+			dono: { connect: { id: donos[2].id } },
+			pet: { connect: { id: pets[4].id } },
+		},
+	]
+
+	for (const agendData of agendamentosData) {
+		await prisma.agendamento.create({
+			data: agendData,
+		})
+	}
+
+	console.log(`✅ ${agendamentosData.length} agendamentos criados`)
+}
+
+// ==================== FUNÇÃO MAIN ====================
+
+async function main() {
+	console.log("🚀 Iniciando seed do banco de dados...\n")
+
+	try {
+		// Limpar banco de dados (ordem inversa das dependências)
+		console.log("🧹 Limpando banco de dados...")
+		await prisma.fatosFinanceiros.deleteMany()
+		await prisma.consulta.deleteMany()
+		await prisma.agendamento.deleteMany()
+		await prisma.despesas.deleteMany()
+		await prisma.produto.deleteMany()
+		await prisma.pertence.deleteMany()
+		await prisma.pet.deleteMany()
+		await prisma.dono.deleteMany()
+		await prisma.veterinario.deleteMany()
+		await prisma.account.deleteMany()
+		await prisma.session.deleteMany()
+		await prisma.authenticator.deleteMany()
+		await prisma.user.deleteMany()
+		console.log("✅ Banco de dados limpo\n")
+
+		// Executar seeds
+		await seedUsers()
+		await seedPets()
+		await seedProdutos()
+		await seedDespesas()
+		await seedAgendamentos()
+
+		console.log("\n✨ Seed concluído com sucesso!")
+		console.log("\n📊 Resumo:")
+		console.log(`   • ${users.length} usuários`)
+		console.log(`   • ${pets.length} pets`)
+		console.log(`   • ${produtos.length} produtos`)
+		console.log(`   • ${despesas.length} despesas`)
+		console.log(`   • 15 agendamentos (8 concluídos, 6 pendentes, 1 cancelado)`)
+	} catch (error) {
+		console.error("❌ Erro durante o seed:", error)
+		throw error
+	}
+}
+
+// ==================== EXECUÇÃO ====================
 
 main()
 	.catch((e) => {

@@ -24,14 +24,15 @@ import { saveClientAction } from "@/lib/actions/clientAction"
 import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
 import { FormMessage } from "@/lib/types/message"
-import { clientCreat } from "@/lib/model/client"
-import { ClienteSchemaWithID } from "@/lib/types/schema/cliente"
+import { clientCreat, clientUpdate } from "@/lib/model/client"
+import { ClienteSchemaWithID, ClienteUser } from "@/lib/types/schema/cliente"
 import { string } from "zod"
+import { User } from "../../../../generated/prisma"
 
 interface ClientModalProps {
 	isOpen: boolean
 	onClose: () => void
-	clientToEdit?: ClienteSchemaWithID | null
+	clientToEdit?: ClienteUser | null
 	onSuccess?: () => void
 }
 
@@ -51,6 +52,7 @@ export function ClientModal({
 	onSuccess,
 }: ClientModalProps) {
 	const [state, action, isPending] = useActionState(clientCreat, initialState)
+	const [state2, action2] = useActionState(clientUpdate, initialState)
 
 	// Ref para guardar o ID da última notificação exibida
 	const lastToastTimestamp = useRef(state.timestamp)
@@ -97,7 +99,7 @@ export function ClientModal({
 					</DialogDescription>
 				</DialogHeader>
 
-				<form action={action} className="space-y-4">
+				<form action={clientToEdit ? action2 : action} className="space-y-4">
 					{clientToEdit && (
 						<input type="hidden" name="id" value={clientToEdit.id} />
 					)}
@@ -109,7 +111,7 @@ export function ClientModal({
 							id="name"
 							name="name"
 							placeholder="Ex: PetShop Doce Lar"
-							defaultValue={clientToEdit ? clientToEdit.name : ""}
+							defaultValue={clientToEdit ? clientToEdit.name || "" : ""}
 							// Se houver erro E o modal não foi fechado/reaberto (ou seja, tentativa falha), mostramos o valor digitado.
 							// Mas o defaultValue acima já cobre a reabertura.
 							className={state.errors?.err ? "border-red-500" : ""}
@@ -153,7 +155,7 @@ export function ClientModal({
 							name="address"
 							type="text"
 							placeholder="Av. Senador Cleiton"
-							defaultValue={clientToEdit?.endereco || ""}
+							defaultValue={clientToEdit?.dono?.endereco || ""}
 							className={state.errors?.err ? "border-red-500" : ""}
 						/>
 					</div>
@@ -166,7 +168,7 @@ export function ClientModal({
 								name="phone"
 								type="text"
 								placeholder="(13)12345-1234"
-								defaultValue={clientToEdit?.telefone || ""}
+								defaultValue={clientToEdit?.dono?.telefone || ""}
 								className={state.errors?.err ? "border-red-500" : ""}
 							/>
 						</div>

@@ -112,6 +112,22 @@ enum TipoConsulta {
   RETORNO
 }
 
+enum ClassPatrimonio {
+  ATIVO_CIRCULANTE
+  ATIVO_NAO_CIRCULANTE
+  ATIVO_PERMANENTE
+  PASSIVO_CIRCULANTE
+  PASSIVO_EXIGIVEL
+  PATRIMONIO_LIQUIDO
+}
+
+enum ClassResultado {
+  DESPESAS_OPERACIONAIS
+  DESPESAS_NAO_OPERACIONAIS
+  RECEITAS_OPERACIONAIS
+  RECEITAS_NAO_OPERACIONAIS
+}
+
 // --- SUAS TABELAS DE DOMÍNIO (Integradas) ---
 
 model Dono {
@@ -157,8 +173,8 @@ model Pertence {
   petId    String
   ativo    Boolean  @default(true)
   
-  dono     Dono     @relation(fields: [donoId], references: [id])
-  pet      Pet      @relation(fields: [petId], references: [id])
+  dono     Dono     @relation(fields: [donoId], references: [id], onDelete: Cascade)
+  pet      Pet      @relation(fields: [petId], references: [id], onDelete: Cascade)
 
   criadoEm DateTime @default(now())
 
@@ -190,8 +206,8 @@ model Agendamento {
   donoId    String
   petId     String
   
-  dono      Dono      @relation(fields: [donoId], references: [id])
-  pet       Pet       @relation(fields: [petId], references: [id])
+  dono      Dono      @relation(fields: [donoId], references: [id], onDelete: Cascade)
+  pet       Pet       @relation(fields: [petId], references: [id], onDelete: Cascade)
   
   consulta  Consulta?
   fatos     FatosFinanceiros[]
@@ -208,8 +224,8 @@ model Consulta {
   agendamentoId String      @unique
   veterinarioId String
   
-  agendamento   Agendamento @relation(fields: [agendamentoId], references: [id])
-  veterinario   Veterinario @relation(fields: [veterinarioId], references: [id])
+  agendamento   Agendamento @relation(fields: [agendamentoId], references: [id], onDelete: Cascade)
+  veterinario   Veterinario @relation(fields: [veterinarioId], references: [id], onDelete: Cascade)
 
   @@map("consultas")
 }
@@ -221,16 +237,28 @@ model Produto {
   estoque       Int
   
   veterinarioId String?
-  veterinario   Veterinario? @relation(fields: [veterinarioId], references: [id])
+  veterinario   Veterinario? @relation(fields: [veterinarioId], references: [id], onDelete: Cascade)
   
   fatos         FatosFinanceiros[]
 
   @@map("produtos")
 }
 
+model Despesas {
+  id            String       @id @default(uuid())
+  tipoPatrimonial          ClassPatrimonio
+  tipoResultado             ClassResultado
+  valor         Decimal
+  descricao     String?
+  dataRegistro  DateTime     @default(now())
+  dataInicio    DateTime
+  dataFim       DateTime?
+}
+
 model FatosFinanceiros {
   id            String       @id @default(uuid())
-  tipo          String
+  tipoPatrimonial          ClassPatrimonio
+  tipoResultado             ClassResultado
   valor         Decimal
   descricao     String
   data          DateTime     @default(now())
@@ -238,8 +266,8 @@ model FatosFinanceiros {
   agendamentoId String?
   produtoId     String?
 
-  agendamento   Agendamento? @relation(fields: [agendamentoId], references: [id])
-  produto       Produto?     @relation(fields: [produtoId], references: [id])
+  agendamento   Agendamento? @relation(fields: [agendamentoId], references: [id], onDelete: Cascade)
+  produto       Produto?     @relation(fields: [produtoId], references: [id], onDelete: Cascade)
 
   @@map("fatos_financeiros")
 }

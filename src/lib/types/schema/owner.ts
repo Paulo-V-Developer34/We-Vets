@@ -5,7 +5,7 @@ export const DonoSchema = z.object({
 		.string()
 		.min(10, "Telefone inválido (mínimo 10 dígitos)")
 		.regex(
-			/^\(\d{2}\) \d{4,5}-\d{4}$/,
+			/^\(?(\d{2})\)?\s?\d{4,5}-?\d{4}$/,
 			"Telefone deve conter apenas números ou traços",
 		)
 		.optional()
