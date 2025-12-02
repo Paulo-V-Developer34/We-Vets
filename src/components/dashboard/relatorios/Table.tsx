@@ -16,26 +16,27 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Edit2, Trash2, Plus, Search } from "lucide-react"
 import { toast } from "sonner"
-import { ProductModal } from "./ProductModal"
-import { Dono, User } from "../../../../generated/prisma"
+import { ProductModal } from "./RelatorioModal"
+import { Dono, FatosFinanceiros, User } from "../../../../generated/prisma"
 import { ClienteUser } from "@/lib/types/schema/cliente"
 import { clientDelete } from "@/lib/model/client"
 import { ProductWithID } from "@/lib/types/product"
 import { productDelete } from "@/lib/model/product"
+import { FactWithoutDecimal } from "@/lib/types/fact"
+import { factDelete } from "@/lib/model/fact"
 
 interface ProductProps {
-	initialData: ProductWithID[]
+	initialData: FactWithoutDecimal[]
 }
 
-export function ProductTable({ initialData }: ProductProps) {
+export function FactTable({ initialData }: ProductProps) {
 	const router = useRouter() // Hook para recarregar dados do servidor
 	const [filterStatus, setFilterStatus] = useState("todos")
 
 	// Estados do Modal
 	const [isModalOpen, setIsModalOpen] = useState(false)
-	const [selectedProduct, setSelectedProduct] = useState<ProductWithID | null>(
-		null,
-	)
+	const [selectedProduct, setSelectedProduct] =
+		useState<FactWithoutDecimal | null>(null)
 
 	// Filtragem (Client-side)
 	// Nota: initialData vem atualizado do servidor quando router.refresh() é chamado
@@ -51,7 +52,7 @@ export function ProductTable({ initialData }: ProductProps) {
 	}
 
 	// Ação: Abrir modal para EDITAR
-	const handleEdit = (product: ProductWithID) => {
+	const handleEdit = (product: FactWithoutDecimal) => {
 		setSelectedProduct(product)
 		setIsModalOpen(true)
 	}
@@ -67,7 +68,7 @@ export function ProductTable({ initialData }: ProductProps) {
 	// Ação: DELETAR (Ainda client-side simulado por enquanto)
 	const handleDelete = async (id: string) => {
 		// Para deletar via Server Action, você criaria uma action similar à de salvar
-		const resultado = await productDelete(id)
+		const resultado = await factDelete(id)
 
 		if (resultado.errors) {
 			toast.error(resultado.errors.err[0])
@@ -122,10 +123,12 @@ export function ProductTable({ initialData }: ProductProps) {
 			<div className="rounded-md border bg-white shadow-sm overflow-hidden">
 				<div className="bg-emerald-700 px-4 py-3 border-b border-emerald-800">
 					<div className="grid grid-cols-6 gap-4 text-xs font-semibold text-white uppercase tracking-wider">
-						<div className="col-span-2">Nome</div>
-						<div>Quantidade</div>
-						<div>Preço</div>
-						<div>Modificado em</div>
+						<div className="col-span-2">Descrição</div>
+						<div>Valor</div>
+						<div>Data</div>
+						<div>Parcelas</div>
+						<div>Tipo Patrimonial</div>
+						<div>Tipo Resultado</div>
 						<div className="text-right">Ações</div>
 					</div>
 				</div>
@@ -135,16 +138,22 @@ export function ProductTable({ initialData }: ProductProps) {
 						{filteredData.map((product) => (
 							<TableRow key={product.id} className="hover:bg-gray-50">
 								<TableCell className="font-bold text-emerald-950">
-									{product.nome}
+									{product.descricao}
 								</TableCell>
 								<TableCell className="text-muted-foreground">
-									{product.estoque.toFixed(2)}
+									{product.valor.toFixed(2)}
 								</TableCell>
 								<TableCell className="font-bold text-emerald-950">
-									{product.preco.toFixed(2).toString()}
+									{product.data.toDateString()}
 								</TableCell>
 								<TableCell className="font-bold text-emerald-950">
-									{product.veterinarioId}
+									{product.parcelas > 1 ? product.parcelas : "Pago à vista"}
+								</TableCell>
+								<TableCell className="font-bold text-emerald-950">
+									{product.tipoPatrimonial}
+								</TableCell>
+								<TableCell className="font-bold text-emerald-950">
+									{product.tipoResultado}
 								</TableCell>
 								<TableCell className="text-right">
 									<div className="flex justify-end gap-2">

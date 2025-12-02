@@ -30,15 +30,18 @@ import { string } from "zod"
 import {
 	ClassPatrimonio,
 	ClassResultado,
+	FatosFinanceiros,
 	User,
 } from "../../../../generated/prisma"
 import { ProductWithID } from "@/lib/types/product"
 import { productCreat, productUpdate } from "@/lib/model/product"
+import { FactWithoutDecimal } from "@/lib/types/fact"
+import { factCreat } from "@/lib/model/fact"
 
 interface ProductModalProps {
 	isOpen: boolean
 	onClose: () => void
-	productToEdit?: ProductWithID | null
+	productToEdit?: FactWithoutDecimal | null
 	onSuccess?: () => void
 }
 
@@ -57,14 +60,14 @@ export function ProductModal({
 	productToEdit,
 	onSuccess,
 }: ProductModalProps) {
-	const [state, action, isPending] = useActionState(productCreat, initialState)
+	const [state, action, isPending] = useActionState(factCreat, initialState)
 	const [state2, action2] = useActionState(productUpdate, initialState)
-	const [tipoContabil, setTipoContabil] = useState<ClassPatrimonio | undefined>(
-		productToEdit?.tipoPatrimonial,
+	const [tipoContabil, setTipoContabil] = useState<ClassPatrimonio>(
+		productToEdit?.tipoPatrimonial || ClassPatrimonio.ATIVO_CIRCULANTE,
 	)
-	const [tipoResultado, setTipoResultado] = useState<
-		ClassResultado | undefined
-	>(productToEdit?.tipoResultado)
+	const [tipoResultado, setTipoResultado] = useState<ClassResultado>(
+		productToEdit?.tipoResultado || ClassResultado.DESPESAS_OPERACIONAIS,
+	)
 
 	// Ref para guardar o ID da última notificação exibida
 	const lastToastTimestamp = useRef(state.timestamp)
@@ -115,22 +118,21 @@ export function ProductModal({
 					{productToEdit && (
 						<>
 							<input type="hidden" name="id" value={productToEdit.id} />
-							<input
-								type="hidden"
-								name="factId"
-								value={productToEdit.veterinarioId || ""}
-							/>
 						</>
 					)}
 
 					<div className="space-y-2">
-						<Label htmlFor="name">Nome do produto</Label>
+						<Label htmlFor="date">Data</Label>
 						{/* Note que usamos defaultValue com coalescência nula para garantir a troca de dados */}
 						<Input
-							id="name"
-							name="name"
-							placeholder="Ex: Chocolate"
-							defaultValue={productToEdit ? productToEdit.nome || "" : ""}
+							id="date"
+							name="date"
+							type="date"
+							defaultValue={
+								productToEdit
+									? productToEdit.data.toDateString()
+									: new Date().toDateString()
+							}
 							// Se houver erro E o modal não foi fechado/reaberto (ou seja, tentativa falha), mostramos o valor digitado.
 							// Mas o defaultValue acima já cobre a reabertura.
 							className={state.errors?.err ? "border-red-500" : ""}
@@ -148,7 +150,7 @@ export function ProductModal({
 							name="description"
 							type="text"
 							placeholder="Produto para tratar coceira"
-							defaultValue={productToEdit?.estoque || ""}
+							defaultValue={productToEdit?.descricao || ""}
 							className={state.errors?.err ? "border-red-500" : ""}
 						/>
 					</div>
@@ -161,20 +163,20 @@ export function ProductModal({
 							name="price"
 							type="number"
 							placeholder="20"
-							defaultValue={productToEdit?.preco.toString() || ""}
+							defaultValue={productToEdit?.valor || 0}
 							className={state.errors?.err ? "border-red-500" : ""}
 						/>
 					</div>
 
-					{/* Campo Endereco */}
+					{/* Campo Senha */}
 					<div className="space-y-2">
-						<Label htmlFor="stock">Quantidade</Label>
+						<Label htmlFor="parcela">Parcelas</Label>
 						<Input
-							id="stock"
-							name="stock"
+							id="parcela"
+							name="parcela"
 							type="number"
-							placeholder="5"
-							defaultValue={productToEdit?.veterinarioId || ""}
+							placeholder="20"
+							defaultValue={productToEdit?.parcelas || 1}
 							className={state.errors?.err ? "border-red-500" : ""}
 						/>
 					</div>

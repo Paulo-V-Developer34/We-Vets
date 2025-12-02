@@ -19,80 +19,36 @@ import { Decimal } from "../../../generated/prisma/runtime/library"
 import { ProdutoSchema } from "../types/schema/product"
 import { FatosFinanceirosSchema, FatosForm } from "../types/schema/fact"
 import { ProductWithID } from "../types/product"
+import { FactWithoutDecimal } from "../types/fact"
 
-export async function productCreat(
+export async function factCreat(
 	prevState: FormMessage,
 	formData: FormData,
 ): Promise<FormMessage> {
 	//verificando o usuário
-
-	const preco = formData.get("price") as string | null
-	const descricao = formData.get("description") as string | null
-	// Configuração de preco
-	// p
-	if (!preco || !descricao) {
-		return {
-			message: "Um erro ocorreu",
-			errors: {
-				err: ["Não foi possível obter os dados do formulário"],
-			},
-			timestamp: Date.now(),
-		}
-	}
-
 	try {
-		const produto = {
-			nome: formData.get("name") as string | null,
-			preco: new Decimal(preco),
-			estoque: formData.get("stock") as number | null,
-			veterinarioId: formData.get("id") as string | null,
+		const fact = {
+			data: formData.get("date"),
+			descricao: formData.get("description"),
+			valor: formData.get("price"),
+			parcelas: formData.get("parcela"),
+			tipoPatrimonial: formData.get("heritageType"),
+			tipoResultado: formData.get("resultType"),
 		}
 
-		const produtoValido = ProdutoSchema.parse(produto)
+		const factValido = FatosFinanceirosSchema.parse(fact)
 
-		const fato = {
-			descricao: descricao,
-			tipoPatrimonial: formData.get("heritageType") as string | null,
-			tipoResultado: formData.get("resultType") as string | null,
-			valor: produtoValido.estoque * produtoValido.preco,
-		}
-
-		const fatoValido = FatosFinanceirosSchema.parse(fato)
-		const otherClass: ClassPatrimonio =
-			fatoValido.tipoPatrimonial === ClassPatrimonio.ATIVO_CIRCULANTE
-				? ClassPatrimonio.PASSIVO_CIRCULANTE
-				: ClassPatrimonio.PASSIVO_EXIGIVEL
 		//criando usuário
-		const produtoCadastrado = await prisma.produto.create({
+		const produtoCadastrado = await prisma.fatosFinanceiros.create({
 			data: {
-				estoque: produtoValido.estoque,
-				nome: produtoValido.nome,
-				preco: produtoValido.preco,
-				fatos: {
-					createMany: {
-						data: [
-							{
-								descricao: fatoValido.descricao,
-								valor: fatoValido.valor,
-								tipoPatrimonial: fatoValido.tipoPatrimonial,
-								tipoResultado: fatoValido.tipoResultado,
-							},
-							{
-								descricao: fatoValido.descricao,
-								valor: fatoValido.valor,
-								tipoPatrimonial: otherClass,
-								tipoResultado: fatoValido.tipoResultado,
-							},
-						],
-					},
-				},
+				...factValido,
 			},
 		})
 
 		if (!produtoCadastrado) {
 			throw new Error("Não foi possível criar o cliente")
 		}
-		revalidatePath("/dashboard/estoque")
+		revalidatePath("/dashboard/relatorios")
 	} catch (error) {
 		if (error instanceof ZodError) {
 			return {
@@ -119,7 +75,7 @@ export async function productCreat(
 	}
 }
 
-export async function factRead(): Promise<FatosFinanceiros[]> {
+export async function factRead(): Promise<FactWithoutDecimal[]> {
 	//code
 	const fact = await prisma.fatosFinanceiros.findMany()
 
@@ -127,7 +83,25 @@ export async function factRead(): Promise<FatosFinanceiros[]> {
 		throw new Error("Não foi possível obter os dados dos produtos")
 	}
 
-	return fact
+	const factConvertido: FactWithoutDecimal[] = fact.map((el) => {
+		const precoConvertido = el.valor.toNumber()
+
+		const produto: FactWithoutDecimal = {
+			data: el.data,
+			descricao: el.descricao,
+			id: el.id,
+			parcelas: el.parcelas,
+			tipoPatrimonial: el.tipoPatrimonial,
+			tipoResultado: el.tipoResultado,
+			valor: precoConvertido,
+			agendamentoId: el.agendamentoId,
+			produtoId: el.produtoId,
+		}
+
+		return produto
+	})
+
+	return factConvertido
 }
 
 export async function clientReadOne(
@@ -260,7 +234,7 @@ export async function productUpdate(
 	}
 }
 
-export async function productDelete(id: string): Promise<FormMessage> {
+export async function factDelete(id: string): Promise<FormMessage> {
 	const productID = id
 	if (!productID) {
 		return {
@@ -272,7 +246,7 @@ export async function productDelete(id: string): Promise<FormMessage> {
 		}
 	}
 
-	const userDeletado = await prisma.produto.delete({
+	const userDeletado = await prisma.fatosFinanceiros.delete({
 		where: {
 			id: productID,
 		},
@@ -288,7 +262,7 @@ export async function productDelete(id: string): Promise<FormMessage> {
 		}
 	}
 
-	revalidatePath("/dashboard/estoque")
+	revalidatePath("/dashboard/relatorios")
 
 	return {
 		message: "Usuário deletado com sucesso",

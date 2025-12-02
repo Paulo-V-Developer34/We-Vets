@@ -7,9 +7,11 @@ import { use } from "react"
 import { clientRead } from "@/lib/model/client"
 import { productRead } from "@/lib/model/product"
 import { ProductTable } from "@/components/dashboard/estoque/Table"
+import { factRead } from "@/lib/model/fact"
+import { FactTable } from "@/components/dashboard/relatorios/Table"
 
 export default function DashboardPage() {
-	const usersData = use(productRead())
+	const usersData = use(factRead())
 
 	const kpis: KpiClient = {
 		totalClients: 1550,
@@ -47,7 +49,7 @@ export default function DashboardPage() {
 			<ChartKpi kpi={kpi} />
 
 			{/* Tabela ocupando a largura total */}
-			<ProductTable initialData={usersData} />
+			<FactTable initialData={usersData} />
 		</div>
 	)
 }

@@ -59,12 +59,12 @@ export function ProductModal({
 }: ProductModalProps) {
 	const [state, action, isPending] = useActionState(productCreat, initialState)
 	const [state2, action2] = useActionState(productUpdate, initialState)
-	const [tipoContabil, setTipoContabil] = useState<ClassPatrimonio | undefined>(
-		productToEdit?.tipoPatrimonial,
+	const [tipoContabil, setTipoContabil] = useState<ClassPatrimonio>(
+		productToEdit?.tipoPatrimonial || ClassPatrimonio.ATIVO_CIRCULANTE,
 	)
-	const [tipoResultado, setTipoResultado] = useState<
-		ClassResultado | undefined
-	>(productToEdit?.tipoResultado)
+	const [tipoResultado, setTipoResultado] = useState<ClassResultado>(
+		productToEdit?.tipoResultado || ClassResultado.DESPESAS_OPERACIONAIS,
+	)
 
 	// Ref para guardar o ID da última notificação exibida
 	const lastToastTimestamp = useRef(state.timestamp)

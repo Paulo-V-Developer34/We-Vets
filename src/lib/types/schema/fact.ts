@@ -17,6 +17,7 @@ export const FatosFinanceirosSchema = z
 			ClassResultado.RECEITAS_NAO_OPERACIONAIS,
 			ClassResultado.RECEITAS_OPERACIONAIS,
 		]),
+		parcelas: z.coerce.number().positive("O valor deve ser positivo"),
 		valor: z.coerce.number().positive("O valor deve ser positivo"),
 		descricao: z.string().min(3, "Descrição necessária"),
 		data: z.coerce.date().default(() => new Date()),
