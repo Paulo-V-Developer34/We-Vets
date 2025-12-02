@@ -4,7 +4,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useState } from "react"
 import { useRouter } from "next/navigation" // Import para refresh da página
 import { Client } from "@/lib/types/client"
-import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table"
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from "@/components/ui/table"
 import {
 	Select,
 	SelectContent,
@@ -114,38 +121,59 @@ export function ProductTable({ initialData }: ProductProps) {
 					className="bg-emerald-600 hover:bg-emerald-700 text-white w-full sm:w-auto gap-2"
 				>
 					<Plus className="h-4 w-4" />
-					Novo Cliente
+					Novo Produto
 				</Button>
 			</div>
 
 			{/* Tabela */}
 			<div className="rounded-md border bg-white shadow-sm overflow-hidden">
-				<div className="bg-emerald-700 px-4 py-3 border-b border-emerald-800">
-					<div className="grid grid-cols-6 gap-4 text-xs font-semibold text-white uppercase tracking-wider">
-						<div className="col-span-2">Nome</div>
-						<div>Quantidade</div>
-						<div>Preço</div>
-						<div>Modificado em</div>
-						<div className="text-right">Ações</div>
-					</div>
-				</div>
-
+				{/* NOVO: Tabela Cabeçalho (Header) usando TableHeader e TableHead */}
 				<Table>
+					<TableHeader className="bg-emerald-700 text-white hover:bg-emerald-700">
+						<TableRow className="border-emerald-800">
+							{/* 1. Nome (Mais largura) */}
+							<TableHead className="text-white uppercase tracking-wider font-semibold w-[35%]">
+								Nome
+							</TableHead>
+							{/* 2. Quantidade */}
+							<TableHead className="text-white uppercase tracking-wider font-semibold w-[15%]">
+								Quantidade
+							</TableHead>
+							{/* 3. Preço */}
+							<TableHead className="text-white uppercase tracking-wider font-semibold w-[15%]">
+								Preço
+							</TableHead>
+							{/* 4. Modificado em */}
+							<TableHead className="text-white uppercase tracking-wider font-semibold w-[20%]">
+								Modificado em
+							</TableHead>
+							{/* 5. Ações (Alinhado à direita) */}
+							<TableHead className="text-right text-white uppercase tracking-wider font-semibold w-[15%]">
+								Ações
+							</TableHead>
+						</TableRow>
+					</TableHeader>
+
 					<TableBody>
 						{filteredData.map((product) => (
 							<TableRow key={product.id} className="hover:bg-gray-50">
+								{/* 1. Nome */}
 								<TableCell className="font-bold text-emerald-950">
 									{product.nome}
 								</TableCell>
+								{/* 2. Quantidade */}
 								<TableCell className="text-muted-foreground">
 									{product.estoque.toFixed(2)}
 								</TableCell>
+								{/* 3. Preço */}
 								<TableCell className="font-bold text-emerald-950">
 									{product.preco.toFixed(2).toString()}
 								</TableCell>
+								{/* 4. Modificado em (Mantendo o dado original: veterinarioId) */}
 								<TableCell className="font-bold text-emerald-950">
 									{product.veterinarioId}
 								</TableCell>
+								{/* 5. Ações */}
 								<TableCell className="text-right">
 									<div className="flex justify-end gap-2">
 										<Button

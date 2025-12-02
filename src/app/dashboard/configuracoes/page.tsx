@@ -13,6 +13,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Switch } from "@/components/ui/switch"
 import { Separator } from "@/components/ui/separator"
 import { Save, User, Bell, Building } from "lucide-react"
+import { deletarBanco } from "@/lib/model/data"
+import { toast } from "sonner"
+import BotaoDaDestruicao from "@/components/dashboard/configuracoes/BotaoDaDestruicao"
 
 export default function ConfiguracoesPage() {
 	return (
@@ -85,10 +88,11 @@ export default function ConfiguracoesPage() {
 								/>
 							</div>
 						</CardContent>
-						<CardFooter className="border-t px-6 py-4 bg-slate-50 rounded-b-xl flex justify-end">
+						<CardFooter className="gap-8 border-t px-6 py-4 bg-slate-50 rounded-b-xl flex justify-end">
 							<Button className="bg-emerald-600 hover:bg-emerald-700 text-white">
 								<Save className="mr-2 h-4 w-4" /> Salvar Alterações
 							</Button>
+							<BotaoDaDestruicao />
 						</CardFooter>
 					</Card>
 				</TabsContent>

@@ -4,7 +4,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useState } from "react"
 import { useRouter } from "next/navigation" // Import para refresh da página
 import { Client } from "@/lib/types/client"
-import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table"
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from "@/components/ui/table"
 import {
 	Select,
 	SelectContent,
@@ -116,21 +123,39 @@ export function ClientTable({ initialData }: { initialData: ClienteUser[] }) {
 
 			{/* Tabela */}
 			<div className="rounded-md border bg-white shadow-sm overflow-hidden">
-				<div className="bg-emerald-700 px-4 py-3 border-b border-emerald-800">
-					<div className="grid grid-cols-6 gap-4 text-xs font-semibold text-white uppercase tracking-wider">
-						<div className="col-span-2">Nome / Email</div>
-						<div>Imagem</div>
-						<div>Telefone</div>
-						<div>Criado em</div>
-						<div className="text-right">Ações</div>
-					</div>
-				</div>
-
 				<Table>
+					{/* NOVO: Tabela Cabeçalho (Header) */}
+					<TableHeader className="bg-emerald-700 text-white hover:bg-emerald-700">
+						<TableRow className="border-emerald-800">
+							{/* 1. Nome/Email */}
+							<TableHead className="text-white uppercase tracking-wider font-semibold w-[35%]">
+								Cliente
+							</TableHead>
+							{/* 2. Avatar */}
+							<TableHead className="text-white uppercase tracking-wider font-semibold w-[10%]">
+								Foto
+							</TableHead>
+							{/* 3. Telefone */}
+							<TableHead className="text-white uppercase tracking-wider font-semibold w-[20%]">
+								Telefone
+							</TableHead>
+							{/* 4. Data de Criação */}
+							<TableHead className="text-white uppercase tracking-wider font-semibold w-[20%]">
+								Data Cadastro
+							</TableHead>
+							{/* 5. Ações */}
+							<TableHead className="text-right text-white uppercase tracking-wider font-semibold w-[15%]">
+								Ações
+							</TableHead>
+						</TableRow>
+					</TableHeader>
+
+					{/* Corpo da Tabela Corrigido */}
 					<TableBody>
 						{filteredData.map((client) => (
 							<TableRow key={client.id} className="hover:bg-gray-50">
-								<TableCell className="font-medium col-span-2">
+								{/* 1. Nome e Email */}
+								<TableCell className="font-medium">
 									<div className="flex flex-col">
 										<span className="text-emerald-950 font-semibold">
 											{client.name}
@@ -140,7 +165,7 @@ export function ClientTable({ initialData }: { initialData: ClienteUser[] }) {
 										</span>
 									</div>
 								</TableCell>
-								<TableCell></TableCell>
+								{/* 2. Avatar */}
 								<TableCell className="text-muted-foreground">
 									<Avatar className="h-9 w-9 border-2 border-emerald-700">
 										<AvatarImage
@@ -150,12 +175,15 @@ export function ClientTable({ initialData }: { initialData: ClienteUser[] }) {
 										<AvatarFallback>DA</AvatarFallback>
 									</Avatar>
 								</TableCell>
+								{/* 3. Telefone */}
 								<TableCell className="font-bold text-emerald-950">
 									{client.dono?.telefone}
 								</TableCell>
+								{/* 4. Data de Criação */}
 								<TableCell className="font-bold text-emerald-950">
 									{client.createdAt.toDateString()}
 								</TableCell>
+								{/* 5. Ações */}
 								<TableCell className="text-right">
 									<div className="flex justify-end gap-2">
 										<Button

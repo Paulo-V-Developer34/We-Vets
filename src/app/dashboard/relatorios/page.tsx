@@ -9,29 +9,44 @@ import { productRead } from "@/lib/model/product"
 import { ProductTable } from "@/components/dashboard/estoque/Table"
 import { factRead } from "@/lib/model/fact"
 import { FactTable } from "@/components/dashboard/relatorios/Table"
+import {
+	kpiCaixa,
+	kpiQTDDTransacoes,
+	kpiTotalCredito,
+	kpiTotalDebito,
+} from "@/lib/kpis/relatorioKpi"
+import { getReceita } from "@/lib/charts/kpis"
 
 export default function DashboardPage() {
 	const usersData = use(factRead())
 
-	const kpis: KpiClient = {
-		totalClients: 1550,
-		activeClients: 1240,
-		newClients: 45,
-		churnRate: 2.4,
-	}
+	// const kpis: KpiClient = {
+	// 	totalClients: 1550,
+	// 	activeClients: 1240,
+	// 	newClients: 45,
+	// 	churnRate: 2.4,
+	// }
 
 	const kpi: KpiCommon[] = [
 		{
 			title: "Total de Caixa",
-			value: kpis.totalClients.toString(),
+			value: use(kpiCaixa()).toString(),
 		},
 		{
 			title: "Transações",
-			value: kpis.activeClients.toString(),
+			value: use(kpiQTDDTransacoes()).toString(),
 		},
 		{
 			title: "Receita Mensal",
-			value: kpis.newClients.toString(),
+			value: use(getReceita()).receita.media.toString(),
+		},
+		{
+			title: "Crédito",
+			value: use(kpiTotalCredito()).toString(),
+			otherValue: {
+				subTitle: "Debito",
+				subValue: use(kpiTotalDebito()).toString(),
+			},
 		},
 	]
 

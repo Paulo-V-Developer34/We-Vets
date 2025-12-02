@@ -20,16 +20,16 @@ export default function DashboardPage() {
 
 	const kpi: KpiCommon[] = [
 		{
-			title: "Total de Clientes",
-			value: kpis.totalClients.toString(),
-		},
-		{
-			title: "Clientes Ativos",
-			value: kpis.totalClients.toString(),
-		},
-		{
-			title: "Novos Clientes",
+			title: "Total de Produtos",
 			value: kpis.newClients.toString(),
+		},
+		{
+			title: "Melhor produto",
+			value: "Ração golden",
+		},
+		{
+			title: "Última atualização",
+			value: new Date().toDateString(),
 		},
 	]
 
@@ -38,8 +38,8 @@ export default function DashboardPage() {
 			{/* Header alinhado sem padding extra */}
 			<ChartHeader
 				content={{
-					title: "Gestão de Clientes",
-					text: "Gerencie o relacionamento e histórico dos seus clientes.",
+					title: "Gestão de Produtos",
+					text: "Gerencie os produtos e medicamentos da clínica.",
 				}}
 			/>
 

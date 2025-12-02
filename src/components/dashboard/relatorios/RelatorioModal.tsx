@@ -31,6 +31,7 @@ import {
 	ClassPatrimonio,
 	ClassResultado,
 	FatosFinanceiros,
+	Operacao,
 	User,
 } from "../../../../generated/prisma"
 import { ProductWithID } from "@/lib/types/product"
@@ -67,6 +68,9 @@ export function ProductModal({
 	)
 	const [tipoResultado, setTipoResultado] = useState<ClassResultado>(
 		productToEdit?.tipoResultado || ClassResultado.DESPESAS_OPERACIONAIS,
+	)
+	const [tipoOperacao, setTipoOperacao] = useState<Operacao>(
+		productToEdit?.operacao || Operacao.CREDITO,
 	)
 
 	// Ref para guardar o ID da última notificação exibida
@@ -179,6 +183,23 @@ export function ProductModal({
 							defaultValue={productToEdit?.parcelas || 1}
 							className={state.errors?.err ? "border-red-500" : ""}
 						/>
+					</div>
+
+					<div className="space-y-2">
+						<Label htmlFor="operacao">Tipo de Operação</Label>
+						<Select
+							value={tipoOperacao}
+							onValueChange={(val) => setTipoOperacao(val as Operacao)}
+						>
+							<SelectTrigger className="w-[180px]">
+								<span>{tipoOperacao || "Selecione uma opção"}</span>
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="CREDITO">CREDITO</SelectItem>
+								<SelectItem value="DEBITO">DEBITO</SelectItem>
+							</SelectContent>
+						</Select>
+						<input type="hidden" name="operacao" value={tipoOperacao} />
 					</div>
 
 					<div className="grid grid-cols-2 gap-4">

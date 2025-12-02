@@ -34,6 +34,7 @@ export async function factCreat(
 			parcelas: formData.get("parcela"),
 			tipoPatrimonial: formData.get("heritageType"),
 			tipoResultado: formData.get("resultType"),
+			operacao: formData.get("operacao"),
 		}
 
 		const factValido = FatosFinanceirosSchema.parse(fact)
@@ -96,6 +97,7 @@ export async function factRead(): Promise<FactWithoutDecimal[]> {
 			valor: precoConvertido,
 			agendamentoId: el.agendamentoId,
 			produtoId: el.produtoId,
+			operacao: el.operacao,
 		}
 
 		return produto

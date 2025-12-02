@@ -9,6 +9,7 @@ import {
 	SelectItem,
 } from "@/components/ui/select"
 import { Download } from "lucide-react"
+import { ExportarCSVButton } from "../csv/exportCsv"
 
 export default function ChartHeader({
 	content,
@@ -36,10 +37,7 @@ export default function ChartHeader({
 					</SelectContent>
 				</Select>
 
-				<Button className="bg-emerald-800 hover:bg-emerald-900 text-white gap-2">
-					<Download className="h-4 w-4" />
-					Exportar CSV
-				</Button>
+				<ExportarCSVButton />
 			</div>
 		</div>
 	)

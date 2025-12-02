@@ -1,5 +1,9 @@
 import z from "zod"
-import { ClassPatrimonio, ClassResultado } from "../../../../generated/prisma"
+import {
+	ClassPatrimonio,
+	ClassResultado,
+	Operacao,
+} from "../../../../generated/prisma"
 
 export const FatosFinanceirosSchema = z
 	.object({
@@ -17,6 +21,7 @@ export const FatosFinanceirosSchema = z
 			ClassResultado.RECEITAS_NAO_OPERACIONAIS,
 			ClassResultado.RECEITAS_OPERACIONAIS,
 		]),
+		operacao: z.enum([Operacao.CREDITO, Operacao.DEBITO]),
 		parcelas: z.coerce.number().positive("O valor deve ser positivo"),
 		valor: z.coerce.number().positive("O valor deve ser positivo"),
 		descricao: z.string().min(3, "Descrição necessária"),

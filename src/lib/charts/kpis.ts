@@ -49,7 +49,7 @@ export async function getKpi(): Promise<KpiCommon[]> {
 	return kpi
 }
 
-async function getReceita(): Promise<
+export async function getReceita(): Promise<
 	Omit<Kpi, "agendamento" | "produtos" | "pets">
 > {
 	//calculando a receita
@@ -71,7 +71,7 @@ async function getReceita(): Promise<
 	])
 
 	if (!primeiraData || !receitas) {
-		throw new Error("Não foi possível obter os dados da receita")
+		return { receita: { media: 0, valorTotal: 0 } }
 	}
 
 	const anoInicial = primeiraData.data.getFullYear()
@@ -115,7 +115,7 @@ async function getAgendamento(): Promise<
 	])
 
 	if (!agendamentosAFazer || !agendamentosConcluidos) {
-		throw new Error("Não foi possível obter os dados dos agendamentos")
+		return { agendamento: { aFazer: 0, feitos: 0 } }
 	}
 
 	return {
@@ -132,7 +132,7 @@ async function getProdutos(): Promise<
 	const produtos = await prisma.produto.count()
 	const produtosFaltando = 3
 	if (!produtos || !produtosFaltando) {
-		throw new Error("Não foi possível obter os dados dos produtos")
+		return { produtos: { estoque: 0, faltando: 99 } }
 	}
 
 	return { produtos: { estoque: produtos, faltando: produtosFaltando } }
@@ -154,7 +154,7 @@ async function getPets(): Promise<
 	])
 
 	if (!quantidade || !ultimoCadastrado) {
-		throw new Error("Não foi possível obter os dados dos pets")
+		return { pets: { quantidade: 0, ultimoCadastrado: new Date() } }
 	}
 
 	return { pets: { quantidade, ultimoCadastrado: ultimoCadastrado.cadastro } }

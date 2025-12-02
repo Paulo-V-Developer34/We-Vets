@@ -193,15 +193,17 @@ const produtos: Omit<Prisma.ProdutoCreateInput, "veterinario">[] = [
 				data: [
 					{
 						descricao: "Compra da ração premium",
-						tipoPatrimonial: "PASSIVO_CIRCULANTE",
-						tipoResultado: "DESPESAS_OPERACIONAIS",
-						valor: 4500,
-					},
-					{
-						descricao: "Aquisição da ração premium",
 						tipoPatrimonial: "ATIVO_CIRCULANTE",
 						tipoResultado: "DESPESAS_OPERACIONAIS",
 						valor: 4500,
+						operacao: "CREDITO",
+					},
+					{
+						descricao: "Compra da ração premium",
+						tipoPatrimonial: "ATIVO_CIRCULANTE",
+						tipoResultado: "DESPESAS_OPERACIONAIS",
+						valor: 4500,
+						operacao: "DEBITO",
 					},
 				],
 			},
@@ -216,15 +218,17 @@ const produtos: Omit<Prisma.ProdutoCreateInput, "veterinario">[] = [
 				data: [
 					{
 						descricao: "Compra da Vacina",
-						tipoPatrimonial: "PASSIVO_CIRCULANTE",
-						tipoResultado: "DESPESAS_OPERACIONAIS",
-						valor: 3600,
-					},
-					{
-						descricao: "Aquisição da Vacina",
 						tipoPatrimonial: "ATIVO_CIRCULANTE",
 						tipoResultado: "DESPESAS_OPERACIONAIS",
 						valor: 3600,
+						operacao: "CREDITO",
+					},
+					{
+						descricao: "Compra da Vacina",
+						tipoPatrimonial: "ATIVO_CIRCULANTE",
+						tipoResultado: "DESPESAS_OPERACIONAIS",
+						valor: 3600,
+						operacao: "DEBITO",
 					},
 				],
 			},
@@ -239,15 +243,17 @@ const produtos: Omit<Prisma.ProdutoCreateInput, "veterinario">[] = [
 				data: [
 					{
 						descricao: "Compra de antipulgas",
-						tipoPatrimonial: "PASSIVO_CIRCULANTE",
-						tipoResultado: "DESPESAS_OPERACIONAIS",
-						valor: 4550,
-					},
-					{
-						descricao: "Aquisição de antipulgas",
 						tipoPatrimonial: "ATIVO_CIRCULANTE",
 						tipoResultado: "DESPESAS_OPERACIONAIS",
 						valor: 4550,
+						operacao: "CREDITO",
+					},
+					{
+						descricao: "Compra de antipulgas",
+						tipoPatrimonial: "ATIVO_CIRCULANTE",
+						tipoResultado: "DESPESAS_OPERACIONAIS",
+						valor: 4550,
+						operacao: "DEBITO",
 					},
 				],
 			},
@@ -257,36 +263,101 @@ const produtos: Omit<Prisma.ProdutoCreateInput, "veterinario">[] = [
 		nome: "Vermífugo",
 		preco: new Prisma.Decimal(35.0),
 		estoque: 80,
+		fatos: {
+			createMany: {
+				data: [
+					{
+						descricao: "Compra de vermífugo",
+						tipoPatrimonial: "ATIVO_CIRCULANTE",
+						tipoResultado: "DESPESAS_OPERACIONAIS",
+						valor: 2800,
+						operacao: "CREDITO",
+					},
+					{
+						descricao: "Compra de vermífugo",
+						tipoPatrimonial: "ATIVO_CIRCULANTE",
+						tipoResultado: "DESPESAS_OPERACIONAIS",
+						valor: 2800,
+						operacao: "DEBITO",
+					},
+				],
+			},
+		},
 	},
 	{
 		nome: "Shampoo Medicinal",
 		preco: new Prisma.Decimal(55.0),
 		estoque: 40,
+		fatos: {
+			createMany: {
+				data: [
+					{
+						descricao: "Compra de antipulgas",
+						tipoPatrimonial: "PASSIVO_CIRCULANTE",
+						tipoResultado: "DESPESAS_OPERACIONAIS",
+						valor: 2200,
+						operacao: "CREDITO",
+					},
+					{
+						descricao: "Compra de antipulgas",
+						tipoPatrimonial: "PASSIVO_CIRCULANTE",
+						tipoResultado: "DESPESAS_OPERACIONAIS",
+						valor: 2200,
+						operacao: "DEBITO",
+					},
+				],
+			},
+		},
 	},
 	{
 		nome: "Coleira Antiparasitária",
 		preco: new Prisma.Decimal(78.9),
 		estoque: 25,
+		fatos: {
+			createMany: {
+				data: [
+					{
+						descricao: "Compra de antipulgas",
+						tipoPatrimonial: "PASSIVO_CIRCULANTE",
+						tipoResultado: "DESPESAS_OPERACIONAIS",
+						valor: 1972.5,
+						operacao: "CREDITO",
+					},
+					{
+						descricao: "Compra de antipulgas",
+						tipoPatrimonial: "PASSIVO_CIRCULANTE",
+						tipoResultado: "DESPESAS_OPERACIONAIS",
+						valor: 1972.5,
+						operacao: "DEBITO",
+					},
+				],
+			},
+		},
 	},
 	{
 		nome: "Ração Filhote",
-		preco: new Prisma.Decimal(95.0),
-		estoque: 35,
-	},
-	{
-		nome: "Vacina Antirrábica",
-		preco: new Prisma.Decimal(80.0),
-		estoque: 45,
-	},
-	{
-		nome: "Suplemento Vitamínico",
-		preco: new Prisma.Decimal(62.5),
-		estoque: 60,
-	},
-	{
-		nome: "Pomada Cicatrizante",
-		preco: new Prisma.Decimal(38.0),
-		estoque: 70,
+		preco: new Prisma.Decimal(20.0),
+		estoque: 10,
+		fatos: {
+			createMany: {
+				data: [
+					{
+						descricao: "Compra de antipulgas",
+						tipoPatrimonial: "PASSIVO_EXIGIVEL",
+						tipoResultado: "DESPESAS_OPERACIONAIS",
+						valor: 200,
+						operacao: "CREDITO",
+					},
+					{
+						descricao: "Compra de antipulgas",
+						tipoPatrimonial: "PASSIVO_EXIGIVEL",
+						tipoResultado: "DESPESAS_OPERACIONAIS",
+						valor: 200,
+						operacao: "DEBITO",
+					},
+				],
+			},
+		},
 	},
 ]
 

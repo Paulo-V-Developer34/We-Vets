@@ -4,7 +4,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useState } from "react"
 import { useRouter } from "next/navigation" // Import para refresh da página
 import { Client } from "@/lib/types/client"
-import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table"
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from "@/components/ui/table"
 import {
 	Select,
 	SelectContent,
@@ -17,13 +24,19 @@ import { Badge } from "@/components/ui/badge"
 import { Edit2, Trash2, Plus, Search } from "lucide-react"
 import { toast } from "sonner"
 import { ProductModal } from "./RelatorioModal"
-import { Dono, FatosFinanceiros, User } from "../../../../generated/prisma"
+import {
+	Dono,
+	FatosFinanceiros,
+	Operacao,
+	User,
+} from "../../../../generated/prisma"
 import { ClienteUser } from "@/lib/types/schema/cliente"
 import { clientDelete } from "@/lib/model/client"
 import { ProductWithID } from "@/lib/types/product"
 import { productDelete } from "@/lib/model/product"
 import { FactWithoutDecimal } from "@/lib/types/fact"
 import { factDelete } from "@/lib/model/fact"
+import clsx from "clsx"
 
 interface ProductProps {
 	initialData: FactWithoutDecimal[]
@@ -121,41 +134,77 @@ export function FactTable({ initialData }: ProductProps) {
 
 			{/* Tabela */}
 			<div className="rounded-md border bg-white shadow-sm overflow-hidden">
-				<div className="bg-emerald-700 px-4 py-3 border-b border-emerald-800">
-					<div className="grid grid-cols-6 gap-4 text-xs font-semibold text-white uppercase tracking-wider">
-						<div className="col-span-2">Descrição</div>
-						<div>Valor</div>
-						<div>Data</div>
-						<div>Parcelas</div>
-						<div>Tipo Patrimonial</div>
-						<div>Tipo Resultado</div>
-						<div className="text-right">Ações</div>
-					</div>
-				</div>
-
+				{/* Usamos o componente Table nativo do Shadcn/Radix */}
 				<Table>
+					{/* NOVO: Tabela Cabeçalho (Header) */}
+					<TableHeader className="bg-emerald-700 text-white hover:bg-emerald-700">
+						<TableRow className="border-emerald-800">
+							{/* Ajuste os cabeçalhos TH para corresponderem aos TDs */}
+							<TableHead className="text-white uppercase tracking-wider font-semibold w-[25%]">
+								Descrição
+							</TableHead>
+							<TableHead className="text-white uppercase tracking-wider font-semibold w-[10%]">
+								Valor
+							</TableHead>
+							<TableHead className="text-white uppercase tracking-wider font-semibold w-[10%]">
+								Data
+							</TableHead>
+							{/* Removi o Tipo Patrimonial e Tipo Resultado do cabeçalho original, 
+                        pois na imagem eles estão como DADOS, e as colunas originais são:
+                        VALOR, DATA, PARCELAS, OPERAÇÃO, TIPO PATRIMONIAL, TIPO RESULTADO.
+                        A imagem mostra 8 colunas de dados, mas os títulos que precisam 
+                        de alinhamento (Descrição, Valor, Data, ...) são 8 no total.
+                    */}
+							<TableHead className="text-white uppercase tracking-wider font-semibold w-[10%]">
+								Parcelas
+							</TableHead>
+							<TableHead className="text-white uppercase tracking-wider font-semibold w-[10%]">
+								Operação
+							</TableHead>
+							<TableHead className="text-white uppercase tracking-wider font-semibold w-[15%]">
+								Tipo Patrimonial
+							</TableHead>
+							<TableHead className="text-white uppercase tracking-wider font-semibold w-[10%]">
+								Tipo Resultado
+							</TableHead>
+							<TableHead className="text-right text-white uppercase tracking-wider font-semibold w-[10%]">
+								Ações
+							</TableHead>
+						</TableRow>
+					</TableHeader>
+
 					<TableBody>
 						{filteredData.map((product) => (
 							<TableRow key={product.id} className="hover:bg-gray-50">
-								<TableCell className="font-bold text-emerald-950">
+								{/* Corpo da Tabela (Body) - 8 Células de Dados (TD) */}
+								<TableCell className="font-bold text-emerald-950 w-[25%]">
 									{product.descricao}
 								</TableCell>
-								<TableCell className="text-muted-foreground">
+								<TableCell className="text-muted-foreground w-[10%]">
 									{product.valor.toFixed(2)}
 								</TableCell>
-								<TableCell className="font-bold text-emerald-950">
+								<TableCell className="font-bold text-emerald-950 w-[10%]">
 									{product.data.toDateString()}
 								</TableCell>
-								<TableCell className="font-bold text-emerald-950">
+								<TableCell className="font-bold text-emerald-950 w-[10%]">
 									{product.parcelas > 1 ? product.parcelas : "Pago à vista"}
 								</TableCell>
-								<TableCell className="font-bold text-emerald-950">
+								<TableCell
+									className={clsx(
+										product.operacao === Operacao.CREDITO
+											? "font-bold text-emerald-600 w-[10%]"
+											: "font-bold text-red-600 w-[10%]",
+									)}
+								>
+									{product.operacao}
+								</TableCell>
+								<TableCell className="font-bold text-emerald-950 w-[15%]">
 									{product.tipoPatrimonial}
 								</TableCell>
-								<TableCell className="font-bold text-emerald-950">
+								<TableCell className="font-bold text-emerald-950 w-[10%]">
 									{product.tipoResultado}
 								</TableCell>
-								<TableCell className="text-right">
+								<TableCell className="text-right w-[10%]">
 									<div className="flex justify-end gap-2">
 										<Button
 											variant="ghost"
@@ -165,6 +214,7 @@ export function FactTable({ initialData }: ProductProps) {
 										>
 											<Edit2 className="h-4 w-4" />
 										</Button>
+
 										<Button
 											variant="ghost"
 											size="icon"

@@ -5,6 +5,7 @@ import {
 	ClassPatrimonio,
 	Dono,
 	FatosFinanceiros,
+	Operacao,
 	Produto,
 	User,
 } from "../../../generated/prisma"
@@ -55,6 +56,8 @@ export async function productCreat(
 			tipoPatrimonial: formData.get("heritageType") as string | null,
 			tipoResultado: formData.get("resultType") as string | null,
 			valor: produtoValido.estoque * produtoValido.preco,
+			operacao: Operacao.CREDITO,
+			parcelas: 1,
 		}
 
 		const fatoValido = FatosFinanceirosSchema.parse(fato)
@@ -76,12 +79,16 @@ export async function productCreat(
 								valor: fatoValido.valor,
 								tipoPatrimonial: fatoValido.tipoPatrimonial,
 								tipoResultado: fatoValido.tipoResultado,
+								operacao: "CREDITO",
+								parcelas: fatoValido.parcelas,
 							},
 							{
 								descricao: fatoValido.descricao,
 								valor: fatoValido.valor,
-								tipoPatrimonial: otherClass,
+								tipoPatrimonial: fatoValido.tipoPatrimonial,
 								tipoResultado: fatoValido.tipoResultado,
+								operacao: "DEBITO",
+								parcelas: fatoValido.parcelas,
 							},
 						],
 					},

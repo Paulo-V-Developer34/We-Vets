@@ -12,6 +12,9 @@ import {
 	Settings,
 	LogOut,
 	Home,
+	BookUp2,
+	Coins,
+	LucideLayoutDashboard,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { signOut } from "next-auth/react"
@@ -36,6 +39,24 @@ const menuItems = [
 	{ icon: Dog, label: "Pets", href: "/pets", admOnly: false },
 	{ icon: Package, label: "Estoque", href: "/estoque", admOnly: true },
 	{ icon: BarChart3, label: "Relatórios", href: "/relatorios", admOnly: true },
+	{
+		icon: BookUp2,
+		label: "Razão",
+		href: "/razao",
+		admOnly: true,
+	},
+	{
+		icon: Coins,
+		label: "DRE",
+		href: "/dre",
+		admOnly: true,
+	},
+	{
+		icon: LucideLayoutDashboard,
+		label: "Balanço",
+		href: "/balanco",
+		admOnly: true,
+	},
 	{
 		icon: Settings,
 		label: "Configurações",
