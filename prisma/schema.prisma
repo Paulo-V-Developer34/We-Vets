@@ -262,6 +262,7 @@ model FatosFinanceiros {
   valor         Decimal
   descricao     String
   data          DateTime     @default(now())
+  parcelas      Int          @default(1)
 
   agendamentoId String?
   produtoId     String?

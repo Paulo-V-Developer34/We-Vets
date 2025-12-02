@@ -186,18 +186,72 @@ const pets: Prisma.PetCreateInput[] = [
 const produtos: Omit<Prisma.ProdutoCreateInput, "veterinario">[] = [
 	{
 		nome: "Ração Premium Adulto",
-		preco: new Prisma.Decimal(89.9),
+		preco: new Prisma.Decimal(90),
 		estoque: 50,
+		fatos: {
+			createMany: {
+				data: [
+					{
+						descricao: "Compra da ração premium",
+						tipoPatrimonial: "PASSIVO_CIRCULANTE",
+						tipoResultado: "DESPESAS_OPERACIONAIS",
+						valor: 4500,
+					},
+					{
+						descricao: "Aquisição da ração premium",
+						tipoPatrimonial: "ATIVO_CIRCULANTE",
+						tipoResultado: "DESPESAS_OPERACIONAIS",
+						valor: 4500,
+					},
+				],
+			},
+		},
 	},
 	{
 		nome: "Vacina V10",
 		preco: new Prisma.Decimal(120.0),
 		estoque: 30,
+		fatos: {
+			createMany: {
+				data: [
+					{
+						descricao: "Compra da Vacina",
+						tipoPatrimonial: "PASSIVO_CIRCULANTE",
+						tipoResultado: "DESPESAS_OPERACIONAIS",
+						valor: 3600,
+					},
+					{
+						descricao: "Aquisição da Vacina",
+						tipoPatrimonial: "ATIVO_CIRCULANTE",
+						tipoResultado: "DESPESAS_OPERACIONAIS",
+						valor: 3600,
+					},
+				],
+			},
+		},
 	},
 	{
 		nome: "Antipulgas",
 		preco: new Prisma.Decimal(45.5),
 		estoque: 100,
+		fatos: {
+			createMany: {
+				data: [
+					{
+						descricao: "Compra de antipulgas",
+						tipoPatrimonial: "PASSIVO_CIRCULANTE",
+						tipoResultado: "DESPESAS_OPERACIONAIS",
+						valor: 4550,
+					},
+					{
+						descricao: "Aquisição de antipulgas",
+						tipoPatrimonial: "ATIVO_CIRCULANTE",
+						tipoResultado: "DESPESAS_OPERACIONAIS",
+						valor: 4550,
+					},
+				],
+			},
+		},
 	},
 	{
 		nome: "Vermífugo",
