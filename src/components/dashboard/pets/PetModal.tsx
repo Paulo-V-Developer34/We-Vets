@@ -1,6 +1,7 @@
 "use client"
 
-import { useActionState, useEffect, useRef } from "react"
+import { useActionState, useEffect, useRef } from "react" // <--- Importe useRef
+import { Client } from "@/lib/types/client"
 import {
 	Dialog,
 	DialogContent,
@@ -19,201 +20,175 @@ import {
 	SelectValue,
 } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
+import { saveClientAction } from "@/lib/actions/clientAction"
 import { toast } from "sonner"
-import { Loader2, PawPrint } from "lucide-react"
+import { Loader2 } from "lucide-react"
 import { FormMessage } from "@/lib/types/message"
-// Assumindo que você criou estas actions e tipos:
-import { petCreate, petUpdate } from "@/lib/model/pet"
-import { PetType } from "@/lib/types/pet"
+import { clientCreat, clientUpdate } from "@/lib/model/client"
+import { ClienteSchemaWithID, ClienteUser } from "@/lib/types/schema/cliente"
+import { string } from "zod"
+import { User } from "../../../../generated/prisma"
 
-interface PetModalProps {
+interface ClientModalProps {
 	isOpen: boolean
 	onClose: () => void
-	petToEdit?: PetType | null
+	clientToEdit?: ClienteUser | null
 	onSuccess?: () => void
 }
 
+// Estado inicial agora precisa do timestamp zerado
 const initialState: FormMessage = {
 	message: "",
 	errors: {
 		err: [],
 	},
-	timestamp: 0,
+	timestamp: 0, // <--- Inicialize com 0
 }
 
-export function PetModal({
+export function ClientModal({
 	isOpen,
 	onClose,
-	petToEdit,
+	clientToEdit,
 	onSuccess,
-}: PetModalProps) {
-	// Actions específicas de Pet
-	const [createState, createAction, isCreatePending] = useActionState(
-		petCreate,
-		initialState,
-	)
-	const [updateState, updateAction, isUpdatePending] = useActionState(
-		petUpdate,
-		initialState,
-	)
+}: ClientModalProps) {
+	const [state, action, isPending] = useActionState(clientCreat, initialState)
+	const [state2, action2] = useActionState(clientUpdate, initialState)
 
-	const isPending = isCreatePending || isUpdatePending
-
-	// Refs de timestamp
-	const lastCreateTs = useRef(createState.timestamp)
-	const lastUpdateTs = useRef(updateState.timestamp)
+	// Ref para guardar o ID da última notificação exibida
+	const lastToastTimestamp = useRef(state.timestamp)
 
 	useEffect(() => {
-		// Handler de Criação
+		// Se o timestamp atual for igual ao último processado ou for 0 (inicial), não faz nada.
 		if (
-			createState.timestamp !== lastCreateTs.current &&
-			createState.timestamp !== 0
+			state.timestamp === lastToastTimestamp.current ||
+			state.timestamp === 0
 		) {
-			if (createState.errors?.err?.length) {
-				toast.error(createState.errors.err[0])
-			} else if (createState.message) {
-				toast.success("Pet cadastrado com sucesso! 🐶")
-				if (onSuccess) onSuccess()
-				onClose()
-			}
-			lastCreateTs.current = createState.timestamp
+			return
 		}
 
-		// Handler de Atualização
-		if (
-			updateState.timestamp !== lastUpdateTs.current &&
-			updateState.timestamp !== 0
-		) {
-			if (updateState.errors?.err?.length) {
-				toast.error(updateState.errors.err[0])
-			} else if (updateState.message) {
-				toast.success("Dados do pet atualizados! 🐱")
-				if (onSuccess) onSuccess()
-				onClose()
-			}
-			lastUpdateTs.current = updateState.timestamp
+		// Se chegou aqui, é uma NOVA atualização de estado
+		if (state.errors) {
+			toast.error(state.errors.err[0])
+		} else if (state.message) {
+			toast.success(state.message)
+			if (onSuccess) onSuccess()
+			onClose() // Fecha o modal
 		}
-	}, [createState, updateState, onClose, onSuccess])
 
-	const currentErrors = petToEdit ? updateState.errors : createState.errors
+		// Atualiza o ref para dizer "já processei essa resposta"
+		lastToastTimestamp.current = state.timestamp
+	}, [state, onClose, onSuccess])
+
+	// Se o modal fechar, e quisermos garantir que o formulário "limpe" visualmente ao reabrir,
+	// o useActionState não reseta sozinho.
+	// O ideal aqui é confiar que ao mudar o `clientToEdit` ou `isOpen`,
+	// os inputs pegarão o defaultValue correto.
 
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
-			<DialogContent className="sm:max-w-[600px]">
+			<DialogContent className="sm:max-w-[500px]">
+				{/* ... (resto do JSX permanece idêntico) ... */}
 				<DialogHeader>
-					<DialogTitle className="flex items-center gap-2">
-						<PawPrint className="w-5 h-5 text-emerald-600" />
-						{petToEdit ? `Editar Pet: ${petToEdit.nome}` : "Cadastrar Novo Pet"}
+					<DialogTitle>
+						{clientToEdit ? "Editar Cliente" : "Novo Cliente"}
 					</DialogTitle>
 					<DialogDescription>
-						{petToEdit
-							? "Atualize as características físicas ou dados clínicos do animal."
-							: "Preencha a ficha cadastral do novo paciente."}
+						{clientToEdit
+							? "Visualize ou altere os detalhes do cliente abaixo."
+							: "Preencha os dados para adicionar um novo cliente à base."}
 					</DialogDescription>
 				</DialogHeader>
 
-				<form
-					action={petToEdit ? updateAction : createAction}
-					className="space-y-4"
-				>
-					{petToEdit && <input type="hidden" name="id" value={petToEdit.id} />}
+				<form action={clientToEdit ? action2 : action} className="space-y-4">
+					{clientToEdit && (
+						<input type="hidden" name="id" value={clientToEdit.id} />
+					)}
 
-					{/* Nome e Espécie */}
-					<div className="grid grid-cols-2 gap-4">
-						<div className="space-y-2 col-span-2 sm:col-span-1">
-							<Label htmlFor="name">Nome do Pet</Label>
-							<Input
-								id="name"
-								name="name"
-								placeholder="Ex: Rex, Mel, Thor"
-								defaultValue={petToEdit?.nome || ""}
-								className={createState.errors?.err ? "border-red-500" : ""}
-							/>
-						</div>
-
-						<div className="space-y-2 col-span-2 sm:col-span-1">
-							<Label htmlFor="species">Espécie</Label>
-							<Select
-								name="species"
-								defaultValue={petToEdit?.especie || "Cachorro"}
-							>
-								<SelectTrigger>
-									<SelectValue placeholder="Selecione" />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="Cachorro">Cachorro</SelectItem>
-									<SelectItem value="Gato">Gato</SelectItem>
-									<SelectItem value="Ave">Ave</SelectItem>
-									<SelectItem value="Roedor">Roedor</SelectItem>
-									<SelectItem value="Outro">Outro</SelectItem>
-								</SelectContent>
-							</Select>
-						</div>
-					</div>
-
-					{/* Raça, Idade e Peso */}
-					<div className="grid grid-cols-3 gap-4">
-						<div className="space-y-2 col-span-3 sm:col-span-1">
-							<Label htmlFor="breed">Raça</Label>
-							<Input
-								id="breed"
-								name="breed"
-								placeholder="Ex: Vira-lata"
-								defaultValue={petToEdit?.raca || ""}
-							/>
-						</div>
-
-						<div className="space-y-2 col-span-3 sm:col-span-1">
-							<Label htmlFor="age">Idade (Anos)</Label>
-							<Input
-								id="age"
-								name="age"
-								type="number"
-								placeholder="Ex: 5"
-								defaultValue={petToEdit?.age || ""}
-							/>
-						</div>
-
-						<div className="space-y-2 col-span-3 sm:col-span-1">
-							<Label htmlFor="weight">Peso (kg)</Label>
-							<Input
-								id="weight"
-								name="weight"
-								type="number"
-								step="0.1"
-								placeholder="Ex: 12.5"
-								defaultValue={petToEdit?.weight || ""}
-							/>
-						</div>
-					</div>
-
-					{/* Foto */}
 					<div className="space-y-2">
-						<Label htmlFor="image">Foto do Pet (URL)</Label>
+						<Label htmlFor="name">Nome da Empresa / Cliente</Label>
+						{/* Note que usamos defaultValue com coalescência nula para garantir a troca de dados */}
 						<Input
-							id="image"
-							name="image"
-							type="text"
-							placeholder="https://..."
-							defaultValue={petToEdit?.image || ""}
+							id="name"
+							name="name"
+							placeholder="Ex: PetShop Doce Lar"
+							defaultValue={clientToEdit ? clientToEdit.name || "" : ""}
+							// Se houver erro E o modal não foi fechado/reaberto (ou seja, tentativa falha), mostramos o valor digitado.
+							// Mas o defaultValue acima já cobre a reabertura.
+							className={state.errors?.err ? "border-red-500" : ""}
 						/>
 					</div>
 
-					{/* Caso precise vincular a um dono na criação */}
-					{!petToEdit && (
-						<div className="space-y-2">
-							<Label htmlFor="ownerId">
-								ID do Tutor (Opcional se já no contexto)
-							</Label>
-							<Input id="ownerId" name="ownerId" placeholder="UUID do dono" />
-						</div>
-					)}
+					{/* ... Resto dos inputs (Email, Status, LTV) ... */}
+					{/* A lógica é a mesma para os outros campos */}
 
-					<DialogFooter className="gap-2 sm:gap-0">
-						{currentErrors?.err && (
-							<p className="text-sm text-red-500 flex items-center mr-auto">
-								⚠️ {currentErrors.err[0]}
-							</p>
+					{/* Campo Email */}
+					<div className="space-y-2">
+						<Label htmlFor="email">E-mail de Contato</Label>
+						<Input
+							id="email"
+							name="email"
+							type="email"
+							placeholder="contato@exemplo.com"
+							defaultValue={clientToEdit?.email || ""}
+							className={state.errors?.err ? "border-red-500" : ""}
+						/>
+					</div>
+
+					{/* Campo Senha */}
+					<div className="space-y-2">
+						<Label htmlFor="password">Senha</Label>
+						<Input
+							id="password"
+							name="password"
+							type="password"
+							placeholder="senhasegura123"
+							defaultValue={clientToEdit?.password || ""}
+							className={state.errors?.err ? "border-red-500" : ""}
+						/>
+					</div>
+
+					{/* Campo Endereco */}
+					<div className="space-y-2">
+						<Label htmlFor="address">Endereco</Label>
+						<Input
+							id="address"
+							name="address"
+							type="text"
+							placeholder="Av. Senador Cleiton"
+							defaultValue={clientToEdit?.dono?.endereco || ""}
+							className={state.errors?.err ? "border-red-500" : ""}
+						/>
+					</div>
+
+					<div className="grid grid-cols-2 gap-4">
+						<div className="space-y-2">
+							<Label htmlFor="phone">Telefone</Label>
+							<Input
+								id="phone"
+								name="phone"
+								type="text"
+								placeholder="(13)12345-1234"
+								defaultValue={clientToEdit?.dono?.telefone || ""}
+								className={state.errors?.err ? "border-red-500" : ""}
+							/>
+						</div>
+
+						<div className="space-y-2">
+							<Label htmlFor="image">URL da imagem</Label>
+							<Input
+								id="image"
+								name="image"
+								type="text"
+								placeholder="https://drive/foto.png"
+								defaultValue={clientToEdit?.image || ""}
+								className={state.errors?.err ? "border-red-500" : ""}
+							/>
+						</div>
+					</div>
+
+					<DialogFooter>
+						{state.errors?.err && (
+							<p className="text-sm text-red-500">{state.errors.err[0]}</p>
 						)}
 						<Button
 							type="button"
@@ -225,15 +200,11 @@ export function PetModal({
 						</Button>
 						<Button
 							type="submit"
-							className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2"
+							className="bg-emerald-600 hover:bg-emerald-700"
 							disabled={isPending}
 						>
-							{isPending ? (
-								<Loader2 className="h-4 w-4 animate-spin" />
-							) : (
-								<PawPrint className="h-4 w-4" />
-							)}
-							{petToEdit ? "Salvar Pet" : "Cadastrar Pet"}
+							{isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+							{clientToEdit ? "Salvar Alterações" : "Criar Cliente"}
 						</Button>
 					</DialogFooter>
 				</form>

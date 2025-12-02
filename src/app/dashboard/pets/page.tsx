@@ -7,6 +7,7 @@ import { use } from "react"
 import { clientRead } from "@/lib/model/client"
 
 export default function DashboardPage() {
+	throw new Error("Página em manutenção")
 	const usersData = use(clientRead())
 
 	const kpis: KpiClient = {

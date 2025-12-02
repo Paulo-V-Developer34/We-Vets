@@ -16,22 +16,26 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Edit2, Trash2, Plus, Search } from "lucide-react"
 import { toast } from "sonner"
-import { ClientModal } from "./PetModal"
+import { ProductModal } from "./ProductModal"
 import { Dono, User } from "../../../../generated/prisma"
 import { ClienteUser } from "@/lib/types/schema/cliente"
 import { clientDelete } from "@/lib/model/client"
+import { ProductWithID } from "@/lib/types/product"
+import { productDelete } from "@/lib/model/product"
 
-interface ClientTableProps {
-	initialData: User[]
+interface ProductProps {
+	initialData: ProductWithID[]
 }
 
-export function ClientTable({ initialData }: { initialData: ClienteUser[] }) {
+export function ProductTable({ initialData }: ProductProps) {
 	const router = useRouter() // Hook para recarregar dados do servidor
 	const [filterStatus, setFilterStatus] = useState("todos")
 
 	// Estados do Modal
 	const [isModalOpen, setIsModalOpen] = useState(false)
-	const [selectedClient, setSelectedClient] = useState<ClienteUser | null>(null)
+	const [selectedProduct, setSelectedProduct] = useState<ProductWithID | null>(
+		null,
+	)
 
 	// Filtragem (Client-side)
 	// Nota: initialData vem atualizado do servidor quando router.refresh() é chamado
@@ -42,13 +46,13 @@ export function ClientTable({ initialData }: { initialData: ClienteUser[] }) {
 
 	// Ação: Abrir modal para CRIAR
 	const handleCreate = () => {
-		setSelectedClient(null)
+		setSelectedProduct(null)
 		setIsModalOpen(true)
 	}
 
 	// Ação: Abrir modal para EDITAR
-	const handleEdit = (client: ClienteUser) => {
-		setSelectedClient(client)
+	const handleEdit = (product: ProductWithID) => {
+		setSelectedProduct(product)
 		setIsModalOpen(true)
 	}
 
@@ -63,7 +67,7 @@ export function ClientTable({ initialData }: { initialData: ClienteUser[] }) {
 	// Ação: DELETAR (Ainda client-side simulado por enquanto)
 	const handleDelete = async (id: string) => {
 		// Para deletar via Server Action, você criaria uma action similar à de salvar
-		const resultado = await clientDelete(id)
+		const resultado = await productDelete(id)
 
 		if (resultado.errors) {
 			toast.error(resultado.errors.err[0])
@@ -78,11 +82,11 @@ export function ClientTable({ initialData }: { initialData: ClienteUser[] }) {
 			{/* ATENÇÃO: Aqui removemos o onSave e passamos onSuccess 
          O Modal agora é autônomo para salvar os dados.
       */}
-			<ClientModal
+			<ProductModal
 				isOpen={isModalOpen}
 				onClose={() => setIsModalOpen(false)}
 				onSuccess={handleSuccess}
-				clientToEdit={selectedClient}
+				productToEdit={selectedProduct}
 			/>
 
 			{/* Barra de Ações e Filtros */}
@@ -118,43 +122,29 @@ export function ClientTable({ initialData }: { initialData: ClienteUser[] }) {
 			<div className="rounded-md border bg-white shadow-sm overflow-hidden">
 				<div className="bg-emerald-700 px-4 py-3 border-b border-emerald-800">
 					<div className="grid grid-cols-6 gap-4 text-xs font-semibold text-white uppercase tracking-wider">
-						<div className="col-span-2">Nome / Email</div>
-						<div>Imagem</div>
-						<div>Telefone</div>
-						<div>Criado em</div>
+						<div className="col-span-2">Nome</div>
+						<div>Quantidade</div>
+						<div>Preço</div>
+						<div>Modificado em</div>
 						<div className="text-right">Ações</div>
 					</div>
 				</div>
 
 				<Table>
 					<TableBody>
-						{filteredData.map((client) => (
-							<TableRow key={client.id} className="hover:bg-gray-50">
-								<TableCell className="font-medium col-span-2">
-									<div className="flex flex-col">
-										<span className="text-emerald-950 font-semibold">
-											{client.name}
-										</span>
-										<span className="text-muted-foreground text-xs">
-											{client.email}
-										</span>
-									</div>
+						{filteredData.map((product) => (
+							<TableRow key={product.id} className="hover:bg-gray-50">
+								<TableCell className="font-bold text-emerald-950">
+									{product.nome}
 								</TableCell>
-								<TableCell></TableCell>
 								<TableCell className="text-muted-foreground">
-									<Avatar className="h-9 w-9 border-2 border-emerald-700">
-										<AvatarImage
-											src={client.image || "/favicon.png"}
-											alt="Dra. Ana"
-										/>
-										<AvatarFallback>DA</AvatarFallback>
-									</Avatar>
+									{product.estoque.toFixed(2)}
 								</TableCell>
 								<TableCell className="font-bold text-emerald-950">
-									{client.dono?.telefone}
+									{product.preco.toFixed(2).toString()}
 								</TableCell>
 								<TableCell className="font-bold text-emerald-950">
-									{client.createdAt.toDateString()}
+									{product.veterinarioId}
 								</TableCell>
 								<TableCell className="text-right">
 									<div className="flex justify-end gap-2">
@@ -162,7 +152,7 @@ export function ClientTable({ initialData }: { initialData: ClienteUser[] }) {
 											variant="ghost"
 											size="icon"
 											className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
-											onClick={() => handleEdit(client)}
+											onClick={() => handleEdit(product)}
 										>
 											<Edit2 className="h-4 w-4" />
 										</Button>
@@ -170,7 +160,7 @@ export function ClientTable({ initialData }: { initialData: ClienteUser[] }) {
 											variant="ghost"
 											size="icon"
 											className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50"
-											onClick={() => handleDelete(client.id)}
+											onClick={() => handleDelete(product.id)}
 										>
 											<Trash2 className="h-4 w-4" />
 										</Button>
